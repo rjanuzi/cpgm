@@ -179,7 +179,7 @@ uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze)
 	int i,j;
 	uint8_t* histArray = malloc(256);
 
-	if(!imgToAnalyze.isOk) //TODO - Verificar pq estah not ok!
+	if(!imgToAnalyze.isOk)
 	{
 		printf("\npgm_createHistogram - ERRO imagem invalida.");
 		return &histArray[0];

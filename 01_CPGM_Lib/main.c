@@ -16,14 +16,16 @@ int main(int argc, char** argv)
 {
 	/* Em C o primeiro parametro argv[0] eh sempre o nome do proprio
 	 * programa. */
-	char* paramFileName = argv[1];
-	pgm_img_t pgmImage1, pgmImage2, pgmImageResult;
+	/*  TODO - Habilitar para utilizacao de chamada por parametro */
+//	char* paramFileName = argv[1];
+//
+//	if( argc != 2 )
+//	{
+//		printf("ERRO: Chamada incorreta do programa!\n\tUso correto: %s <originalFileName>\n", argv[0]);
+//		return -1;
+//	}
 
-	if( argc != 2 )
-	{
-		printf("ERRO: Chamada incorreta do programa!\n\tUso correto: %s <originalFileName>\n", argv[0]);
-		return -1;
-	}
+	pgm_img_t pgmImage1, pgmImage2, pgmImageResult;
 
 	/* Testando soma por escalar. */
 	/*======================================================================*/

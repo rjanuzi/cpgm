@@ -1,3 +1,13 @@
+/**
+ * @file matrix.h
+ * @author Rafael B. Januzi (rjanuzi@gmail.com)
+ * @version 0.1
+ *
+ * Este arquivo juntamento com o arquivo \ref matrix.c fornece um conjunto de funcoes
+ * para manipulacao de matrizes dinamicamente alocadas.
+ *
+ */
+
 #ifndef MATRIX_H_
 #define MATRIX_H_
 
