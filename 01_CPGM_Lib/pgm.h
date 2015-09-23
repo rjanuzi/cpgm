@@ -28,7 +28,7 @@
 typedef struct {
 	bool isOk;				/* Diz se a estrutura foi preenchida corretamente. */
 	uint8_t maxValue;		/* Valor maximo atribuido a cada pixel. */
-	mtx_matrix8_t imgMatrix;	/* Ponteiro para a matriz da imagem. */
+	mtx_matrixU8_t imgMatrix;	/* Ponteiro para a matriz da imagem. */
 } pgm_img_t;
 
 /**

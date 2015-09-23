@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <pgm.h>
+#include <jpeg.h>
 
 #define LENA_FILE_NAME			"imgs\\00_lena.pgm"
 #define DIFF1_FILE_NAME			"imgs\\01_diff1.pgm"
@@ -56,6 +57,10 @@ int main(int argc, char** argv)
 	pgm_destroyPgm(pgmImage1);
 	pgm_destroyPgm(pgmImage2);
 	/*======================================================================*/
+
+	/*======================================================================*/
+	mtx_matrixFloat_t D = jpeg_calcMatrixD(jpeg_createTestMatrixOriginal());
+	mtx_printMatrixFloat(D);
 
 	return 0;
 }

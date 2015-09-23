@@ -74,7 +74,7 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 	i = 0;
 	j = 0;
 	/* Recupera a matriz */
-	createdPgmImg.imgMatrix = mtx_createMatrix8(nLinesTemp, nColsTemp);
+	createdPgmImg.imgMatrix = mtx_createMatrixU8(nLinesTemp, nColsTemp);
 
 	while( (fscanfResultAux = fscanf(pgmFile, "%d", &intAux)) != EOF && fscanfResultAux != 0 )
 	{
@@ -99,7 +99,7 @@ pgm_img_t pgm_createEmptyImg(int nLines, int nCols)
 	pgm_img_t newPgmImage;
 
 	newPgmImage.maxValue = PGM_PIXEL_MAX_VALUE;
-	newPgmImage.imgMatrix = mtx_createMatrix8(nLines, nCols);
+	newPgmImage.imgMatrix = mtx_createMatrixU8(nLines, nCols);
 	if(newPgmImage.imgMatrix.mtx != NULL)
 		newPgmImage.isOk = true;
 	else
@@ -112,7 +112,7 @@ void pgm_destroyPgm(pgm_img_t pgmImgToDestroy)
 {
 	pgmImgToDestroy.isOk = false;
 	pgmImgToDestroy.maxValue = 0;
-	mtx_freeMatrix8(pgmImgToDestroy.imgMatrix);
+	mtx_freeMatrixU8(pgmImgToDestroy.imgMatrix);
 }
 
 void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
@@ -143,14 +143,14 @@ void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
 
 void pgm_sumScalar(pgm_img_t pgmInputImg, int scalarToSum)
 {
-	mtx_sumScalar8(pgmInputImg.imgMatrix, scalarToSum);
+	mtx_sumScalarU8(pgmInputImg.imgMatrix, scalarToSum);
 }
 
 pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR)
 {
 	pgm_img_t resultImg;
 
-	resultImg.imgMatrix = mtx_subMatrix8(pgmL.imgMatrix, pgmR.imgMatrix);
+	resultImg.imgMatrix = mtx_subMatrixU8(pgmL.imgMatrix, pgmR.imgMatrix);
 	resultImg.maxValue = PGM_PIXEL_MAX_VALUE;
 
 	if(resultImg.imgMatrix.mtx != NULL)
@@ -171,7 +171,7 @@ void pgm_printPgmImgStructure(pgm_img_t dataToPrint)
 			dataToPrint.imgMatrix.nLines, dataToPrint.maxValue);
 
 	printf("\n\tImg data:");
-	mtx_printMatrix8(dataToPrint.imgMatrix);
+	mtx_printMatrixU8(dataToPrint.imgMatrix);
 }
 
 uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze)
