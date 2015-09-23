@@ -130,6 +130,24 @@ mtx_matrixFloat_t mtx_prodMatrixFloat(mtx_matrixFloat_t matrixL, mtx_matrixFloat
 	return resultMatrix;
 }
 
+mtx_matrixFloat_t mtx_divMatrixElemFloat(mtx_matrixFloat_t matrixL, mtx_matrixFloat_t matrixR)
+{
+	int i, j;
+	mtx_matrixFloat_t resultMatrix;
+
+	if(matrixL.nLines != matrixR.nLines || matrixL.nCols != matrixR.nCols)
+	{
+		printf("\nERRO: mtx_divMatrixElemFloat - O numero linhas e colunas devem ser iguais entre as duas matrizes.");
+		return resultMatrix;
+	}
+
+	for(i = 0; i < resultMatrix.nLines; i++)
+		for(j = 0; j < resultMatrix.nCols; j++)
+			resultMatrix.mtx[i][j] = roundf(matrixL.mtx[i][j] / matrixR.mtx[i][j]);
+
+	return resultMatrix;
+}
+
 mtx_matrixU8_t mtx_subMatrixU8(mtx_matrixU8_t matrixL, mtx_matrixU8_t matrixR)
 {
 	int i, j, iMax, jMax;

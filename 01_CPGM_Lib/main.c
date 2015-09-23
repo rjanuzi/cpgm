@@ -60,7 +60,9 @@ int main(int argc, char** argv)
 
 	/*======================================================================*/
 	mtx_matrixFloat_t D = jpeg_calcMatrixD(jpeg_createTestMatrixOriginal());
-	mtx_printMatrixFloat(D);
+	mtx_matrixFloat_t Q50 = jpeg_createDctMatrixQ50();
+	mtx_matrixFloat_t C = mtx_divMatrixElemFloat(D, Q50);
+	mtx_printMatrixFloat(C);
 
 	return 0;
 }

@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 
 typedef struct {
 	int nLines;
@@ -133,6 +134,24 @@ mtx_matrixFloat_t mtx_transposeMtxFloat(mtx_matrixFloat_t matrixToTranspose);
  *
  */
 mtx_matrixFloat_t mtx_prodMatrixFloat(mtx_matrixFloat_t matrixL, mtx_matrixFloat_t matrixR);
+
+/**
+ * Calcula a divisao de cada elemento de uma matriz pelo elemento correspondente de outra
+ * matriz.
+ *
+ * 	Formula: Ci,j = round(Di,j / Qi,j)
+ *
+ * @param mtx_matrixFloat_t matrixL
+ * 	Primeira matriz da equacao.
+ *
+ * @param mtx_matrixFloat_t matrixR
+ * 	Segunda matriz da equacao.
+ *
+ * @return \ref mtx_matrixFloat_t
+ * 	Retorna uma nova matriz com o resultado.
+ *
+ */
+mtx_matrixFloat_t mtx_divMatrixElemFloat(mtx_matrixFloat_t matrixL, mtx_matrixFloat_t matrixR);
 
 /**
  * Calcula a subtracao de duas matrizes: matrixL - matrixR.

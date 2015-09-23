@@ -21,6 +21,15 @@
 mtx_matrixFloat_t jpeg_createDctMatrixT();
 
 /**
+ * Cria a matriz DCT de qualidade 50% seguindo padrao de matrizes
+ * definido por \ref matrix.h
+ *
+ * @return mtx_matrixFloat_t
+ * 	Matriz Q50
+ */
+mtx_matrixFloat_t jpeg_createDctMatrixQ50();
+
+/**
  * Calcula a matriz D para um determinado bloco de imagem 8x8.
  *
  * @param \ref mtx_matrixFloat_t originalMatrix

@@ -24,6 +24,44 @@ const float jpeg_testMatrixOriginal[8][8] = \
 	{ 110, 136, 123, 123, 123, 136, 154, 136}, \
 };
 
+const float jpeg_Q50[8][8] = \
+{
+	{ 16, 11, 10, 16, 24, 40,   51,  61},  \
+	{ 12, 12, 14, 19, 26, 58,   60,  55},  \
+	{ 14, 13, 16, 24, 40, 57,   69,  56},  \
+	{ 14, 17, 22, 29, 51, 87,   80,  62},  \
+	{ 18, 22, 37, 56, 68, 109,  103, 77},  \
+	{ 24, 35, 55, 64, 81, 104,  113, 92},  \
+	{ 49, 64, 78, 87, 103, 121, 120, 101}, \
+	{ 72, 92, 95, 98, 112, 100, 103, 99},  \
+};
+
+//TODO
+const float jpeg_Q10[8][8] = \
+{
+	{}, \
+	{},  \
+	{},  \
+	{},  \
+	{},  \
+	{},  \
+	{}, \
+	{},  \
+};
+
+//TODO
+const float jpeg_Q90[8][8] = \
+{
+	{}, \
+	{},  \
+	{},  \
+	{},  \
+	{},  \
+	{},  \
+	{}, \
+	{},  \
+};
+
 mtx_matrixFloat_t jpeg_createDctMatrixT()
 {
 	int i,j;
@@ -44,6 +82,18 @@ mtx_matrixFloat_t jpeg_createTestMatrixOriginal()
 	for(i = 0; i < JPEG_DCT_BLOCK_SIZE; i++)
 		for(j = 0; j < JPEG_DCT_BLOCK_SIZE; j++)
 			resultMatrix.mtx[i][j] = jpeg_testMatrixOriginal[i][j];
+
+	return resultMatrix;
+}
+
+mtx_matrixFloat_t jpeg_createDctMatrixQ50()
+{
+	int i,j;
+	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(JPEG_DCT_BLOCK_SIZE, JPEG_DCT_BLOCK_SIZE);
+
+	for(i = 0; i < JPEG_DCT_BLOCK_SIZE; i++)
+		for(j = 0; j < JPEG_DCT_BLOCK_SIZE; j++)
+			resultMatrix.mtx[i][j] = jpeg_Q50[i][j];
 
 	return resultMatrix;
 }
