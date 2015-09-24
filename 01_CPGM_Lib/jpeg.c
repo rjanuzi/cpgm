@@ -140,12 +140,13 @@ mtx_matrixFloat_t jpeg_calcMatrixD8x8(mtx_matrixFloat_t originalMatrix)
 
 pgm_img_t jpeg_applyDctToPgmImg(pgm_img_t originalPgmImg, uint8_t qualityMatrixToUse)
 {
-	int i = 0, j = 0, relativeBlockI = 0, ralativeBlockJ = 0, maxRelativeI = 0, maxRelativeJ = 0;
-	mtx_matrixFloat_t originalMatrix = mtx_convertU8ToFloatMatrix(originalPgmImg.imgMatrix);
-	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(originalMatrix.nLines, originalMatrix.nCols);
+	int i = 0, j = 0, relativeBlockI = 0, relativeBlockJ = 0, maxRelativeI = 0, maxRelativeJ = 0;
+	mtx_matrixFloat_t originalMatrix = mtx_convertS16ToFloatMatrix(originalPgmImg.imgMatrix);
+	pgm_img_t resultImg = pgm_createEmptyImg(originalMatrix.nLines, originalMatrix.nCols);
 	mtx_matrixFloat_t QMatrix;
 	mtx_matrixFloat_t D;
 	mtx_matrixFloat_t C;
+	mtx_matrixFloat_t matrixAux8x8;
 
 	switch(qualityMatrixToUse)
 	{
@@ -169,14 +170,37 @@ pgm_img_t jpeg_applyDctToPgmImg(pgm_img_t originalPgmImg, uint8_t qualityMatrixT
 	if( originalPgmImg.imgMatrix.nLines % 8 != 0 || originalPgmImg.imgMatrix.nCols % 8 != 0 )
 	{
 		printf("\nERRO: jpeg_applyDctToPgmImg - O numero de linhas E o numero de colunas da imagem devem ser multiplos de 8!");
-		return resultMatrix;
+		return resultImg;
 	}
 
-	maxRelativeI = originalPgmImg.imgMatrix.nLines/8;
-	maxRelativeI = originalPgmImg.imgMatrix.nCols/8;
-	for(relativeBlockI = 0; relativeBlockI < maxRelativeI; relativeBlockI++)
-		for(relativeBlockI = 0; relativeBlockI < maxRelativeJ; relativeBlockI++)
-			//TODO
+	maxRelativeI = originalPgmImg.imgMatrix.nLines;
+	maxRelativeJ = originalPgmImg.imgMatrix.nCols;
+	for(relativeBlockI = 0; relativeBlockI < maxRelativeI; relativeBlockI += 8)
+		for(relativeBlockJ = 0; relativeBlockJ < maxRelativeJ; relativeBlockJ += 8)
+		{
+			matrixAux8x8 = mtx_createMatrixFloat(8,8);
 
+			/* Preenche a matriz auxiliar com o bloco 8x8 da matriz da imagem original
+			 * onde serah aplicado o algoritmo DCT. */
+			for(i = 0; i < 8; i++)
+				for(j = 0; j < 8; j++)
+				{
+					matrixAux8x8.mtx[i][j] = originalMatrix.mtx[relativeBlockI+i][relativeBlockJ+j];
+				}
+
+			D = jpeg_calcMatrixD8x8(matrixAux8x8);
+			C = mtx_divMatrixElemFloat(D,QMatrix);
+
+			/* Escreve o novo bloco apos a passagem do DCT na matriz da imagem de saída. */
+			for(i = 0; i < 8; i++)
+				for(j = 0; j < 8; j++)
+				{
+					resultImg.imgMatrix.mtx[relativeBlockI+i][relativeBlockJ+j] = (int16_t) C.mtx[i][j];
+				}
+
+			mtx_freeMatrixFloat(matrixAux8x8);
+		}
+
+	return resultImg;
 }
 

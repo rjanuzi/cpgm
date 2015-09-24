@@ -127,6 +127,26 @@ void pgm_sumScalar(pgm_img_t pgmInputImg, int scalarToSum);
 pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR);
 
 /**
+ * Calcula aplica a operacao de diff em uma imagem inteira utilizando
+ * a mesma mascara.
+ *
+ * @param pgm_img_t pgmImg
+ * 	Primeira imagem da equacao de diferenca.
+ *
+ * @param mtx_matrixS16_t mask
+ * 	Mascara que sera subtraida da imagem em blocos.
+ *
+ * @param uint8_t limiarDeDiferenca
+ * 	Define o quanto de diferenca entre cada pixel o algoritmo considera
+ * 	a igualdade. Ex.: 50, p1 - p2 > 50, então p1 == p2
+ *
+ * @return \ref pgm_img_t
+ * 	Retorna uma nova imagem com o resultado.
+ *
+ */
+pgm_img_t pgm_identifyMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca);
+
+/**
  * Imprime na tela os dados dados de uma imagem PGM, que eh representada no programa
  * pela esrutura \ref pgm_img_t
  *

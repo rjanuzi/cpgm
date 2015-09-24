@@ -74,7 +74,7 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 	i = 0;
 	j = 0;
 	/* Recupera a matriz */
-	createdPgmImg.imgMatrix = mtx_createMatrixU8(nLinesTemp, nColsTemp);
+	createdPgmImg.imgMatrix = mtx_createMatrixS16(nLinesTemp, nColsTemp);
 
 	while( (fscanfResultAux = fscanf(pgmFile, "%d", &intAux)) != EOF && fscanfResultAux != 0 )
 	{
@@ -99,7 +99,7 @@ pgm_img_t pgm_createEmptyImg(int nLines, int nCols)
 	pgm_img_t newPgmImage;
 
 	newPgmImage.maxValue = PGM_PIXEL_MAX_VALUE;
-	newPgmImage.imgMatrix = mtx_createMatrixU8(nLines, nCols);
+	newPgmImage.imgMatrix = mtx_createMatrixS16(nLines, nCols);
 	if(newPgmImage.imgMatrix.mtx != NULL)
 		newPgmImage.isOk = true;
 	else
@@ -112,7 +112,7 @@ void pgm_destroyPgm(pgm_img_t pgmImgToDestroy)
 {
 	pgmImgToDestroy.isOk = false;
 	pgmImgToDestroy.maxValue = 0;
-	mtx_freeMatrixU8(pgmImgToDestroy.imgMatrix);
+	mtx_freeMatrixS16(pgmImgToDestroy.imgMatrix);
 }
 
 void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
@@ -143,20 +143,74 @@ void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
 
 void pgm_sumScalar(pgm_img_t pgmInputImg, int scalarToSum)
 {
-	mtx_sumScalarU8(pgmInputImg.imgMatrix, scalarToSum);
+	mtx_sumScalarS16(pgmInputImg.imgMatrix, scalarToSum);
 }
 
 pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR)
 {
 	pgm_img_t resultImg;
 
-	resultImg.imgMatrix = mtx_subMatrixU8(pgmL.imgMatrix, pgmR.imgMatrix);
+	resultImg.imgMatrix = mtx_subMatrixS16(pgmL.imgMatrix, pgmR.imgMatrix);
 	resultImg.maxValue = pgmL.maxValue;
 
 	if(resultImg.imgMatrix.mtx != NULL)
 		resultImg.isOk = true;
 	else
 		resultImg.isOk = false;
+
+	return resultImg;
+}
+
+pgm_img_t pgm_identifyMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca)
+{
+	pgm_img_t resultImg;
+	mtx_matrixS16_t matrixAux, matrixAux2;
+	bool wallyIsInActualBlock = false;
+	int i, j, relativeI, relativeJ, maxRelativeI, maxRelativeJ;
+
+	resultImg = pgm_createEmptyImg(pgmImg.imgMatrix.nLines, pgmImg.imgMatrix.nCols);
+	resultImg.maxValue = pgmImg.maxValue;
+
+	maxRelativeI = pgmImg.imgMatrix.nLines-mask.nLines;
+	maxRelativeJ = pgmImg.imgMatrix.nCols-mask.nCols;
+
+	for(relativeI = 0; relativeI <= maxRelativeI; relativeI++)
+		for(relativeJ = 0; relativeJ <= maxRelativeJ; relativeJ++)
+		{
+			matrixAux = mtx_createMatrixS16(mask.nLines, mask.nCols);
+
+			/* Copia um bloco da imagem original para matrixAux. */
+			for(i = 0; i < matrixAux.nLines; i++)
+				for(j = 0; j < matrixAux.nCols; j++)
+					matrixAux.mtx[i][j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
+
+			matrixAux2 = mtx_subMatrixS16(matrixAux, mask);
+
+			/* Verifica se o wally estah no bloco da imagem sendo analisado */
+			wallyIsInActualBlock = true;
+			for(i = 0; i < matrixAux2.nLines; i++)
+			{
+				for(j = 0; j < matrixAux2.nCols; j++)
+					if(matrixAux2.mtx[i][j] > limiarDeDiferenca) /* Sao diferentes. */
+					{
+						wallyIsInActualBlock = false;
+						break; /* Sai do primeiro for */
+					}
+				if(!wallyIsInActualBlock)
+					break; /* Sai do segundo for */
+			}
+
+			/* Desenha o wally na imagem de resultado */
+			if(wallyIsInActualBlock)
+			{
+				for(i = 0; i < matrixAux2.nLines; i++)
+					for(j = 0; j < matrixAux2.nCols; j++)
+						resultImg.imgMatrix.mtx[relativeI+i][relativeJ+j] = mask.mtx[i][j];
+			}
+
+			mtx_freeMatrixS16(matrixAux);
+			mtx_freeMatrixS16(matrixAux2);
+		}
 
 	return resultImg;
 }
@@ -171,7 +225,7 @@ void pgm_printPgmImgStructure(pgm_img_t dataToPrint)
 			dataToPrint.imgMatrix.nLines, dataToPrint.maxValue);
 
 	printf("\n\tImg data:");
-	mtx_printMatrixU8(dataToPrint.imgMatrix);
+	mtx_printMatrixS16(dataToPrint.imgMatrix);
 }
 
 uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze)
