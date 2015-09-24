@@ -19,8 +19,8 @@
 typedef struct {
 	int nLines;
 	int nCols;
-	uint8_t** mtx;
-} mtx_matrixU8_t;
+	int16_t** mtx;
+} mtx_matrixS16_t;
 
 typedef struct {
 	int nLines;
@@ -42,7 +42,7 @@ typedef struct {
  *
  *	 Obs.: O acesso eh feito normalmente matrix[i][j].
  */
-mtx_matrixU8_t mtx_createMatrixU8(int nLines, int nCols);
+mtx_matrixS16_t mtx_createMatrixU8(int nLines, int nCols);
 
 /**
  *	Instancia uma matriz com elementos de 2 Bytes (int16_t).
@@ -63,10 +63,10 @@ mtx_matrixFloat_t mtx_createMatrixFloat(int nLines, int nCols);
 /**
  * Desaloca a memoria alocada para a matriz.
  *
- * @param \ref mtx_matrixU8_t matrixToFree
+ * @param \ref mtx_matrixS16_t matrixToFree
  *	Matriz para desalocar.
  */
-void mtx_freeMatrixU8(mtx_matrixU8_t matrixToFree);
+void mtx_freeMatrixU8(mtx_matrixS16_t matrixToFree);
 
 /**
  * Desaloca a memoria alocada para a matriz.
@@ -79,13 +79,13 @@ void mtx_freeMatrixFloat(mtx_matrixFloat_t matrixToFree);
 /**
  * Soma um escalar a cada elemento da matriz de 8 bits
  *
- * @param \ref mtx_matrixU8_t matrixUpdate
+ * @param \ref mtx_matrixS16_t matrixUpdate
  *	Matriz para atualizar.
  *
  * @param \ref int scalar
  * 	Valor para somar a matriz.
  */
-void mtx_sumScalarU8(mtx_matrixU8_t matrixToUpdate, int scalar);
+void mtx_sumScalarU8(mtx_matrixS16_t matrixToUpdate, int scalar);
 
 /**
  * Soma um escalar a cada elemento da matriz de floats
@@ -161,25 +161,38 @@ mtx_matrixFloat_t mtx_divMatrixElemFloat(mtx_matrixFloat_t matrixL, mtx_matrixFl
  * estao definidos em ambas matrizes e a matriz resultante terah tamanho
  * min(iL, iR) x min(jL, jR).
  *
- * @param mtx_matrixU8_t matrixL
+ * @param mtx_matrixS16_t matrixL
  * 	Primeira matriz da equacao.
  *
- * @param mtx_matrixU8_t matrixR
+ * @param mtx_matrixS16_t matrixR
  * 	Segunda matriz da equacao.
  *
- * @return \ref mtx_matrixU8_t
+ * @return \ref mtx_matrixS16_t
  * 	Retorna uma nova matriz com o resultado.
  *
  */
-mtx_matrixU8_t mtx_subMatrixU8(mtx_matrixU8_t matrixL, mtx_matrixU8_t matrixR);
+mtx_matrixS16_t mtx_subMatrixU8(mtx_matrixS16_t matrixL, mtx_matrixS16_t matrixR);
+
+/**
+ * Converte uma matriz com os valores U8 para uma matriz com valores em
+ * floats.
+ *
+ * @param mtx_matrixS16_t originalMatrix
+ * 	Matriz a ser convertida.
+ *
+ * @return \ref mtx_matrixFloat_t
+ * 	Matriz gerada.
+ *
+ */
+mtx_matrixFloat_t mtx_convertU8ToFloatMatrix(mtx_matrixS16_t originalMatrix);
 
 /**
  * Imprime na tela os dados dados de uma matriz.
  *
- * @param \ref mtx_matrixU8_t matrixToPrint
+ * @param \ref mtx_matrixS16_t matrixToPrint
  *	Matriz para imprimir.
  */
-void mtx_printMatrixU8(mtx_matrixU8_t matrixToPrint);
+void mtx_printMatrixU8(mtx_matrixS16_t matrixToPrint);
 
 /**
  * Imprime na tela os dados dados de uma matriz.

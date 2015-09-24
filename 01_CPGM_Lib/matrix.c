@@ -1,9 +1,9 @@
 #include <matrix.h>
 
-mtx_matrixU8_t mtx_createMatrixU8(int nLines, int nCols)
+mtx_matrixS16_t mtx_createMatrixU8(int nLines, int nCols)
 {
 	int i,j;
-	mtx_matrixU8_t newMatrix;
+	mtx_matrixS16_t newMatrix;
 
 	newMatrix.nLines = nLines;
 	newMatrix.nCols = nCols;
@@ -42,7 +42,7 @@ mtx_matrixFloat_t mtx_createMatrixFloat(int nLines, int nCols)
 	return newMatrix;
 }
 
-void mtx_freeMatrixU8(mtx_matrixU8_t matrixToFree)
+void mtx_freeMatrixU8(mtx_matrixS16_t matrixToFree)
 {
 	int i;
 
@@ -60,7 +60,7 @@ void mtx_freeMatrixFloat(mtx_matrixFloat_t matrixToFree)
 	free(matrixToFree.mtx);
 }
 
-void mtx_sumScalarU8(mtx_matrixU8_t matrixToUpdate, int scalar)
+void mtx_sumScalarU8(mtx_matrixS16_t matrixToUpdate, int scalar)
 {
 	int i,j, aux;
 
@@ -148,10 +148,10 @@ mtx_matrixFloat_t mtx_divMatrixElemFloat(mtx_matrixFloat_t matrixL, mtx_matrixFl
 	return resultMatrix;
 }
 
-mtx_matrixU8_t mtx_subMatrixU8(mtx_matrixU8_t matrixL, mtx_matrixU8_t matrixR)
+mtx_matrixS16_t mtx_subMatrixU8(mtx_matrixS16_t matrixL, mtx_matrixS16_t matrixR)
 {
 	int i, j, iMax, jMax;
-	mtx_matrixU8_t resultMatrix;
+	mtx_matrixS16_t resultMatrix;
 
 	if( matrixL.nLines < matrixR.nLines )
 		iMax = matrixL.nLines;
@@ -173,7 +173,19 @@ mtx_matrixU8_t mtx_subMatrixU8(mtx_matrixU8_t matrixL, mtx_matrixU8_t matrixR)
 	return resultMatrix;
 }
 
-void mtx_printMatrixU8(mtx_matrixU8_t matrixToPrint)
+mtx_matrixFloat_t mtx_convertU8ToFloatMatrix(mtx_matrixS16_t originalMatrix)
+{
+	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(originalMatrix.nLines, originalMatrix.nCols);
+	int i,j;
+
+	for(i = 0; i < originalMatrix.nLines; i++)
+		for(j = 0; j < originalMatrix.nCols; j++)
+			resultMatrix.mtx[i][j] = (float) originalMatrix.mtx[i][j];
+
+	return resultMatrix;
+}
+
+void mtx_printMatrixU8(mtx_matrixS16_t matrixToPrint)
 {
 	int i,j;
 

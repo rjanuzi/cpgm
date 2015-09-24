@@ -151,7 +151,7 @@ pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR)
 	pgm_img_t resultImg;
 
 	resultImg.imgMatrix = mtx_subMatrixU8(pgmL.imgMatrix, pgmR.imgMatrix);
-	resultImg.maxValue = PGM_PIXEL_MAX_VALUE;
+	resultImg.maxValue = pgmL.maxValue;
 
 	if(resultImg.imgMatrix.mtx != NULL)
 		resultImg.isOk = true;
@@ -177,7 +177,7 @@ void pgm_printPgmImgStructure(pgm_img_t dataToPrint)
 uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze)
 {
 	int i,j;
-	uint8_t* histArray = malloc(256);
+	uint8_t* histArray = malloc(PGM_PIXEL_MAX_VALUE);
 
 	if(!imgToAnalyze.isOk)
 	{
@@ -186,7 +186,7 @@ uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze)
 	}
 
 	/* Preenche o array de resultados com 0s */
-	for(i = 0; i < 256; i++)
+	for(i = 0; i <= imgToAnalyze.maxValue; i++)
 		histArray[i] = 0;
 
 	for(i = 0; i < imgToAnalyze.imgMatrix.nLines; i++)
@@ -207,7 +207,7 @@ void pgm_saveHistogram(const char* fileName, uint8_t* histArray)
 		return; /* Termina o programa. */
 	}
 
-	for(i = 0; i < 256; i++)
+	for(i = 0; i < PGM_PIXEL_MAX_VALUE; i++)
 		fprintf(fileToSave, "%d\n", histArray[i]);
 
 	printf("\npgm_saveHistogram  - Histograma salvo com sucesso no arquivo: %s", fileName);

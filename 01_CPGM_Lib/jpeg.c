@@ -24,6 +24,18 @@ const float jpeg_testMatrixOriginal[8][8] = \
 	{ 110, 136, 123, 123, 123, 136, 154, 136}, \
 };
 
+const float jpeg_Q10[8][8] = \
+{
+	{80,  60,  50,  80,  120, 200, 255, 255}, \
+	{55,  60,  70,  95,  130, 255, 255, 255}, \
+	{70,  65,  80,  120, 200, 255, 255, 255}, \
+	{70,  85,  110, 145, 255, 255, 255, 255}, \
+	{90,  110, 185, 255, 255, 255, 255, 255}, \
+	{120, 175, 255, 255, 255, 255, 255, 255}, \
+	{245, 255, 255, 255, 255, 255, 255, 255}, \
+	{255, 255, 255, 255, 255, 255, 255, 255}, \
+};
+
 const float jpeg_Q50[8][8] = \
 {
 	{ 16, 11, 10, 16, 24, 40,   51,  61},  \
@@ -36,33 +48,19 @@ const float jpeg_Q50[8][8] = \
 	{ 72, 92, 95, 98, 112, 100, 103, 99},  \
 };
 
-//TODO
-const float jpeg_Q10[8][8] = \
-{
-	{}, \
-	{},  \
-	{},  \
-	{},  \
-	{},  \
-	{},  \
-	{}, \
-	{},  \
-};
-
-//TODO
 const float jpeg_Q90[8][8] = \
 {
-	{}, \
-	{},  \
-	{},  \
-	{},  \
-	{},  \
-	{},  \
-	{}, \
-	{},  \
+	{3,  2, 2,  3,  5,  8,  10, 12},  \
+	{2,  2, 3,  4,  5,  12, 12, 11},  \
+	{3,  3, 3,  5,  8,  11, 14, 11},  \
+	{3,  3, 4,  6,  10, 17, 16, 12},  \
+	{4,  4, 7,  11, 14, 22, 21, 15},  \
+	{5,  7, 11, 13, 16, 12, 23, 18},  \
+	{10, 13, 16, 17, 21, 24, 24, 21}, \
+	{14, 18, 19, 20, 22, 20, 20, 20}, \
 };
 
-mtx_matrixFloat_t jpeg_createDctMatrixT()
+mtx_matrixFloat_t jpeg_createDctMatrixT8x8()
 {
 	int i,j;
 	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(JPEG_DCT_BLOCK_SIZE, JPEG_DCT_BLOCK_SIZE);
@@ -74,7 +72,7 @@ mtx_matrixFloat_t jpeg_createDctMatrixT()
 	return resultMatrix;
 }
 
-mtx_matrixFloat_t jpeg_createTestMatrixOriginal()
+mtx_matrixFloat_t jpeg_createTestMatrixOriginal8x8()
 {
 	int i,j;
 	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(JPEG_DCT_BLOCK_SIZE, JPEG_DCT_BLOCK_SIZE);
@@ -86,7 +84,19 @@ mtx_matrixFloat_t jpeg_createTestMatrixOriginal()
 	return resultMatrix;
 }
 
-mtx_matrixFloat_t jpeg_createDctMatrixQ50()
+mtx_matrixFloat_t jpeg_createDctMatrixQ108x8()
+{
+	int i,j;
+	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(JPEG_DCT_BLOCK_SIZE, JPEG_DCT_BLOCK_SIZE);
+
+	for(i = 0; i < JPEG_DCT_BLOCK_SIZE; i++)
+		for(j = 0; j < JPEG_DCT_BLOCK_SIZE; j++)
+			resultMatrix.mtx[i][j] = jpeg_Q10[i][j];
+
+	return resultMatrix;
+}
+
+mtx_matrixFloat_t jpeg_createDctMatrixQ508x8()
 {
 	int i,j;
 	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(JPEG_DCT_BLOCK_SIZE, JPEG_DCT_BLOCK_SIZE);
@@ -98,9 +108,21 @@ mtx_matrixFloat_t jpeg_createDctMatrixQ50()
 	return resultMatrix;
 }
 
-mtx_matrixFloat_t jpeg_calcMatrixD(mtx_matrixFloat_t originalMatrix)
+mtx_matrixFloat_t jpeg_createDctMatrixQ908x8()
 {
-	mtx_matrixFloat_t T = jpeg_createDctMatrixT();
+	int i,j;
+	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(JPEG_DCT_BLOCK_SIZE, JPEG_DCT_BLOCK_SIZE);
+
+	for(i = 0; i < JPEG_DCT_BLOCK_SIZE; i++)
+		for(j = 0; j < JPEG_DCT_BLOCK_SIZE; j++)
+			resultMatrix.mtx[i][j] = jpeg_Q90[i][j];
+
+	return resultMatrix;
+}
+
+mtx_matrixFloat_t jpeg_calcMatrixD8x8(mtx_matrixFloat_t originalMatrix)
+{
+	mtx_matrixFloat_t T = jpeg_createDctMatrixT8x8();
 	mtx_matrixFloat_t T_transposta = mtx_transposeMtxFloat(T);
 	mtx_matrixFloat_t D;
 	mtx_matrixFloat_t matrixAux;
@@ -114,5 +136,47 @@ mtx_matrixFloat_t jpeg_calcMatrixD(mtx_matrixFloat_t originalMatrix)
 	mtx_freeMatrixFloat(matrixAux);
 
 	return D;
+}
+
+pgm_img_t jpeg_applyDctToPgmImg(pgm_img_t originalPgmImg, uint8_t qualityMatrixToUse)
+{
+	int i = 0, j = 0, relativeBlockI = 0, ralativeBlockJ = 0, maxRelativeI = 0, maxRelativeJ = 0;
+	mtx_matrixFloat_t originalMatrix = mtx_convertU8ToFloatMatrix(originalPgmImg.imgMatrix);
+	mtx_matrixFloat_t resultMatrix = mtx_createMatrixFloat(originalMatrix.nLines, originalMatrix.nCols);
+	mtx_matrixFloat_t QMatrix;
+	mtx_matrixFloat_t D;
+	mtx_matrixFloat_t C;
+
+	switch(qualityMatrixToUse)
+	{
+	case JPEG_QUALITY_MATRIX_TO_USE_Q10:
+		QMatrix = jpeg_createDctMatrixQ108x8();
+		break;
+
+	case JPEG_QUALITY_MATRIX_TO_USE_Q50:
+		QMatrix = jpeg_createDctMatrixQ508x8();
+		break;
+
+	case JPEG_QUALITY_MATRIX_TO_USE_Q90:
+		QMatrix = jpeg_createDctMatrixQ908x8();
+		break;
+
+	default:
+		QMatrix = jpeg_createDctMatrixQ908x8();
+		break;
+	}
+
+	if( originalPgmImg.imgMatrix.nLines % 8 != 0 || originalPgmImg.imgMatrix.nCols % 8 != 0 )
+	{
+		printf("\nERRO: jpeg_applyDctToPgmImg - O numero de linhas E o numero de colunas da imagem devem ser multiplos de 8!");
+		return resultMatrix;
+	}
+
+	maxRelativeI = originalPgmImg.imgMatrix.nLines/8;
+	maxRelativeI = originalPgmImg.imgMatrix.nCols/8;
+	for(relativeBlockI = 0; relativeBlockI < maxRelativeI; relativeBlockI++)
+		for(relativeBlockI = 0; relativeBlockI < maxRelativeJ; relativeBlockI++)
+			//TODO
+
 }
 
