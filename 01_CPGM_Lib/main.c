@@ -15,6 +15,8 @@
 #define DCT_ORIGNIAL_FILE_NAME	"imgs\\10_DctOriginal.pgm"
 #define WALLY_FILE_NAME			"imgs\\11_wally.pgm"
 #define MAPA_WALLY_FILE_NAME	"imgs\\12_mapa_wally.pgm"
+#define WALLY_PEQUENO_FILE_NAME	"imgs\\13_wally_pequeno_cinza.pgm"
+#define MAPA_WALLY_2_FILE_NAME	"imgs\\14_mapa_matriz_cinza.pgm"
 
 int main(int argc, char** argv)
 {
@@ -61,29 +63,13 @@ int main(int argc, char** argv)
 	pgm_destroyPgm(pgmImage2);
 	/*======================================================================*/
 
-	/* Testando DCT */
+	/* Testando PGM binaria */
 	/*======================================================================*/
-	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
-
-	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q10);
-	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ10.pgm");
-	pgm_saveHistogram("imgs\\results\\dctQ10.txt", pgm_createHistogram(pgmImage1));
-	pgm_destroyPgm(pgmImage1);
-	pgm_destroyPgm(pgmImageResult);
-
-	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
-	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q50);
-	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ50.pgm");
-	pgm_saveHistogram("imgs\\results\\dctQ50.txt", pgm_createHistogram(pgmImage1));
-	pgm_destroyPgm(pgmImage1);
-	pgm_destroyPgm(pgmImageResult);
-
-	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
-	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q90);
-	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ90.pgm");
-	pgm_saveHistogram("imgs\\results\\dctQ90.txt", pgm_createHistogram(pgmImage1));
-	pgm_destroyPgm(pgmImage1);
-	pgm_destroyPgm(pgmImageResult);
+	pgmImage1 = pgm_createImg(MAPA_WALLY_2_FILE_NAME);
+	pgm_sumScalar(pgmImage1, 75);
+	pgm_savePgmImg(pgmImage1, "imgs\\results\\mapaWally2Clareada1.pgm");
+	pgm_sumScalar(pgmImage1, -150);
+	pgm_savePgmImg(pgmImage1, "imgs\\results\\mapaWally2Escurecida1.pgm");
 
 	return 0;
 }

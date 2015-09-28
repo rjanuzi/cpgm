@@ -2,11 +2,12 @@
 
 pgm_img_t pgm_createImg(const char* pgmFilePath)
 {
-	int fscanfResultAux, i, j, nLinesTemp, nColsTemp;
+	int fscanfResultAux, i, j, k, nLinesTemp, nColsTemp;
 	char stringAux[100];
 	uint16_t intAux;
 	pgm_img_t createdPgmImg;
 	FILE* pgmFile;
+	bool pgmInASCII = false;
 
 	createdPgmImg.isOk = false; /* Apenas se torna true se tudo estiver correto ao final. */
 
@@ -22,10 +23,24 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 	/* Lendo o cabecalho */
 	fscanfResultAux = fscanf(pgmFile, "%s", stringAux);
 	/* A primeira coisa no deve ser a string "P2" (Magic Code) */
-	if( fscanfResultAux == 0 || (strcmp(stringAux, PGM_MAGIC_CODE) != 0 ) )
+	if( fscanfResultAux == 0 )
 	{
 		printf("\npgm_createImg - ERRO: Header PGM invalido.");
 		return createdPgmImg;
+	}
+	else
+	{
+		if(strcmp(stringAux, PGM_MAGIC_CODE_ASCII) == 0)
+			pgmInASCII = true;
+		else
+			if(strcmp(stringAux, PGM_MAGIC_CODE_BIN) == 0)
+				pgmInASCII = false;
+			else
+			{
+				printf("\npgm_createImg - ERRO: Magic CODE invalido: %s", stringAux);
+				return createdPgmImg;
+			}
+
 	}
 
 	/* Pula texto TODO Melhorar esse Skip do comentario. */
@@ -71,23 +86,48 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 		return createdPgmImg;
 	}
 
-	i = 0;
-	j = 0;
-	/* Recupera a matriz */
-	createdPgmImg.imgMatrix = mtx_createMatrixS16(nLinesTemp, nColsTemp);
-
-	while( (fscanfResultAux = fscanf(pgmFile, "%d", &intAux)) != EOF && fscanfResultAux != 0 )
+	if(pgmInASCII)
 	{
-		createdPgmImg.imgMatrix.mtx[i][j] = intAux;
-		j++;
-		if( j >= nColsTemp )
-		{
-			j = 0;
-			i++;
-		}
-	}
+		i = 0;
+		j = 0;
+		/* Recupera a matriz */
+		createdPgmImg.imgMatrix = mtx_createMatrixS16(nLinesTemp, nColsTemp);
 
-	createdPgmImg.isOk = true;
+		while( (fscanfResultAux = fscanf(pgmFile, "%d", &intAux)) != EOF && fscanfResultAux != 0 )
+		{
+			createdPgmImg.imgMatrix.mtx[i][j] = intAux;
+			j++;
+			if( j >= nColsTemp )
+			{
+				j = 0;
+				i++;
+			}
+		}
+
+		createdPgmImg.isOk = true;
+	}
+	else
+	{
+		i = 0;
+		j = 0;
+		uint8_t auxData;
+		/* Recupera a matriz */
+		createdPgmImg.imgMatrix = mtx_createMatrixS16(nLinesTemp, nColsTemp);
+
+		for(k = 0; k < nLinesTemp*nColsTemp; k++)
+		{
+			fread((void*)&auxData, 1,1,pgmFile);
+			createdPgmImg.imgMatrix.mtx[i][j] = auxData;
+			j++;
+			if( j >= nColsTemp )
+			{
+				j = 0;
+				i++;
+			}
+		}
+
+		createdPgmImg.isOk = true;
+	}
 
 	fclose(pgmFile);
 
@@ -126,7 +166,7 @@ void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
 		return; /* Termina o programa. */
 	}
 
-	fprintf(fileToSave, PGM_MAGIC_CODE);
+	fprintf(fileToSave, PGM_MAGIC_CODE_ASCII);
 	fprintf(fileToSave, "\n");
 	fprintf(fileToSave, "# Arquivo criado com a biblioteca cpgm Version 1.0\n");
 	fprintf(fileToSave, "%d %d\n", pgmImgToSave.imgMatrix.nCols, pgmImgToSave.imgMatrix.nLines);

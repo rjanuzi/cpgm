@@ -18,7 +18,8 @@
 #include <stdbool.h>
 #include <matrix.h>
 
-#define PGM_MAGIC_CODE				"P2"
+#define PGM_MAGIC_CODE_ASCII		"P2"
+#define PGM_MAGIC_CODE_BIN			"P5"
 #define PGM_PIXEL_MAX_VALUE			255
 #define PGM_HISTOGRAM_ARRAY_SIZE	256
 
