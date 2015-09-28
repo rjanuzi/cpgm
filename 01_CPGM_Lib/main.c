@@ -33,66 +33,57 @@ int main(int argc, char** argv)
 
 	/* Testando soma por escalar. */
 	/*======================================================================*/
-//	pgmImage1 = pgm_createImg(LENA_FILE_NAME);
-//	pgm_sumScalar(pgmImage1, 75);
-//	pgm_savePgmImg(pgmImage1, "imgs\\results\\lenaClareada1.pgm");
-//	pgm_sumScalar(pgmImage1, 75);
-//	pgm_savePgmImg(pgmImage1, "imgs\\results\\lenaClareada2.pgm");
-//	pgm_sumScalar(pgmImage1, -150);
-//	pgm_savePgmImg(pgmImage1, "imgs\\results\\lenaEscurecida1.pgm");
-//	pgm_sumScalar(pgmImage1, -75);
-//	pgm_savePgmImg(pgmImage1, "imgs\\results\\lenaEscurecida2.pgm");
-//	pgm_destroyPgm(pgmImage1);
+	pgmImage1 = pgm_createImg(LENA_FILE_NAME);
+	pgm_sumScalar(pgmImage1, 75);
+	pgm_savePgmImg(pgmImage1, "imgs\\results\\lenaClareada1.pgm");
+	pgm_sumScalar(pgmImage1, 75);
+	pgm_savePgmImg(pgmImage1, "imgs\\results\\lenaClareada2.pgm");
+	pgm_sumScalar(pgmImage1, -150);
+	pgm_savePgmImg(pgmImage1, "imgs\\results\\lenaEscurecida1.pgm");
+	pgm_sumScalar(pgmImage1, -75);
+	pgm_savePgmImg(pgmImage1, "imgs\\results\\lenaEscurecida2.pgm");
+	pgm_destroyPgm(pgmImage1);
 	/*======================================================================*/
 
 	/* Testando diff */
 	/*======================================================================*/
-//	pgmImage1 = pgm_createImg(DIFF1_FILE_NAME);
-//	pgmImage2 = pgm_createImg(DIFF2_FILE_NAME);
-//	pgmImageResult = pgm_diff(pgmImage1, pgmImage2);
-//	pgm_savePgmImg(pgmImageResult, "imgs\\results\\diffResult1.pgm");
-//	pgm_destroyPgm(pgmImageResult);
-//
-//	pgmImageResult = pgm_diff(pgmImage2, pgmImage1);
-//	pgm_savePgmImg(pgmImageResult, "imgs\\results\\diffResult2.pgm");
-//	pgm_destroyPgm(pgmImageResult);
-//
-//	pgm_destroyPgm(pgmImage1);
-//	pgm_destroyPgm(pgmImage2);
+	pgmImage1 = pgm_createImg(DIFF1_FILE_NAME);
+	pgmImage2 = pgm_createImg(DIFF2_FILE_NAME);
+	pgmImageResult = pgm_diff(pgmImage1, pgmImage2);
+	pgm_savePgmImg(pgmImageResult, "imgs\\results\\diffResult1.pgm");
+	pgm_destroyPgm(pgmImageResult);
+
+	pgmImageResult = pgm_diff(pgmImage2, pgmImage1);
+	pgm_savePgmImg(pgmImageResult, "imgs\\results\\diffResult2.pgm");
+	pgm_destroyPgm(pgmImageResult);
+
+	pgm_destroyPgm(pgmImage1);
+	pgm_destroyPgm(pgmImage2);
 	/*======================================================================*/
 
 	/* Testando DCT */
 	/*======================================================================*/
-//	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
-//
-//	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q10);
-//	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ10.pgm");
-//	pgm_saveHistogram("imgs\\results\\dctQ10.txt", pgm_createHistogram(pgmImage1));
-//	pgm_destroyPgm(pgmImage1);
-//	pgm_destroyPgm(pgmImageResult);
-//
-//	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
-//	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q50);
-//	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ50.pgm");
-//	pgm_saveHistogram("imgs\\results\\dctQ50.txt", pgm_createHistogram(pgmImage1));
-//	pgm_destroyPgm(pgmImage1);
-//	pgm_destroyPgm(pgmImageResult);
-//
-//	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
-//	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q90);
-//	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ90.pgm");
-//	pgm_saveHistogram("imgs\\results\\dctQ90.txt", pgm_createHistogram(pgmImage1));
-//	pgm_destroyPgm(pgmImage1);
-//	pgm_destroyPgm(pgmImageResult);
+	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
 
-	/* Testando DCT */
-	/*======================================================================*/
-	pgm_img_t wally = pgm_createImg(WALLY_FILE_NAME);
-	pgm_img_t wallyMap = pgm_createImg(MAPA_WALLY_FILE_NAME);
-	pgm_img_t operationsResult;
+	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q10);
+	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ10.pgm");
+	pgm_saveHistogram("imgs\\results\\dctQ10.txt", pgm_createHistogram(pgmImage1));
+	pgm_destroyPgm(pgmImage1);
+	pgm_destroyPgm(pgmImageResult);
 
-	operationsResult = pgm_identifyMaskInImage(wallyMap, wally.imgMatrix, 0);
-	pgm_savePgmImg(operationsResult, "teste.pgm");
+	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
+	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q50);
+	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ50.pgm");
+	pgm_saveHistogram("imgs\\results\\dctQ50.txt", pgm_createHistogram(pgmImage1));
+	pgm_destroyPgm(pgmImage1);
+	pgm_destroyPgm(pgmImageResult);
+
+	pgmImage1 = pgm_createImg(DCT_ORIGNIAL_FILE_NAME);
+	pgmImageResult = jpeg_applyDctToPgmImg(pgmImage1, JPEG_QUALITY_MATRIX_TO_USE_Q90);
+	pgm_savePgmImg(pgmImageResult, "imgs\\results\\dctQ90.pgm");
+	pgm_saveHistogram("imgs\\results\\dctQ90.txt", pgm_createHistogram(pgmImage1));
+	pgm_destroyPgm(pgmImage1);
+	pgm_destroyPgm(pgmImageResult);
 
 	return 0;
 }

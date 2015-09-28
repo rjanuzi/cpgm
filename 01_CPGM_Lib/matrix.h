@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <math.h>
 
 typedef struct {
@@ -23,26 +24,15 @@ typedef struct {
 } mtx_matrixS16_t;
 
 typedef struct {
+	int size;
+	int16_t* array;
+} mtx_arrayS16_t;
+
+typedef struct {
 	int nLines;
 	int nCols;
 	float** mtx;
 } mtx_matrixFloat_t;
-
-/**
- *	Instancia uma matriz com elementos de 1 Bytes (int16_t).
- *
- *	@param \ref int nLines
- *		Numero de linhas da matriz.
- *	@param int nCols
- *		Numero de colunas da matriz.
- *
- *	@return
- *		Ponteiro para uma matriz nLines x nCols, cada linha da matriz
- *	 possui um ponteiro para um array de tamanho nCols.
- *
- *	 Obs.: O acesso eh feito normalmente matrix[i][j].
- */
-mtx_matrixS16_t mtx_createMatrixS16(int nLines, int nCols);
 
 /**
  *	Instancia uma matriz com elementos de 2 Bytes (int16_t).
@@ -52,11 +42,38 @@ mtx_matrixS16_t mtx_createMatrixS16(int nLines, int nCols);
  *	@param int nCols
  *		Numero de colunas da matriz.
  *
- *	@return
- *		Ponteiro para uma matriz nLines x nCols, cada linha da matriz
- *	 possui um ponteiro para um array de tamanho nCols.
+ *	@return mtx_matrixS16_t
+ *		Matriz nLines x nCols alocada.
  *
- *	 Obs.: O acesso eh feito normalmente matrix[i][j].
+ *	 Obs.: O acesso eh feito matrix.mtx[i][j].
+ */
+mtx_matrixS16_t mtx_createMatrixS16(int nLines, int nCols);
+
+/**
+ *	Instancia um array com elementos de 2 Bytes (int16_t).
+ *
+ *	@param \ref int size
+ *		Tamanho do array.
+ *
+ *	@return mtx_arrayS16_t
+ *		Array de tamanho size alocado.
+ *
+ *	 Obs.: O acesso eh feito normalmente matrix.array[i][j].
+ */
+mtx_arrayS16_t mtx_createArrayS16(int size);
+
+/**
+ *	Instancia uma matriz com elementos de reais (float).
+ *
+ *	@param \ref int nLines
+ *		Numero de linhas da matriz.
+ *	@param int nCols
+ *		Numero de colunas da matriz.
+ *
+ *	@return
+ *		Matriz nLines x nCols alocada.
+ *
+ *	 Obs.: O acesso eh feito matrix.mtx[i][j].
  */
 mtx_matrixFloat_t mtx_createMatrixFloat(int nLines, int nCols);
 
@@ -67,6 +84,14 @@ mtx_matrixFloat_t mtx_createMatrixFloat(int nLines, int nCols);
  *	Matriz para desalocar.
  */
 void mtx_freeMatrixS16(mtx_matrixS16_t matrixToFree);
+
+/**
+ * Desaloca a memoria alocada para o array.
+ *
+ * @param \ref mtx_arrayS16_t arrayToFree
+ *	Array para desalocar.
+ */
+void mtx_freeArrayS16(mtx_arrayS16_t arrayToFree);
 
 /**
  * Desaloca a memoria alocada para a matriz.
@@ -147,11 +172,11 @@ mtx_matrixFloat_t mtx_prodMatrixFloat(mtx_matrixFloat_t matrixL, mtx_matrixFloat
  * @param mtx_matrixFloat_t matrixR
  * 	Segunda matriz da equacao.
  *
- * @return \ref mtx_matrixFloat_t
+ * @return \ref mtx_matrixS16_t
  * 	Retorna uma nova matriz com o resultado.
  *
  */
-mtx_matrixFloat_t mtx_divMatrixElemFloat(mtx_matrixFloat_t matrixL, mtx_matrixFloat_t matrixR);
+mtx_matrixS16_t mtx_divMatrixElemFloat(mtx_matrixFloat_t matrixL, mtx_matrixFloat_t matrixR);
 
 /**
  * Calcula a subtracao de duas matrizes: matrixL - matrixR.
@@ -174,6 +199,29 @@ mtx_matrixFloat_t mtx_divMatrixElemFloat(mtx_matrixFloat_t matrixL, mtx_matrixFl
 mtx_matrixS16_t mtx_subMatrixS16(mtx_matrixS16_t matrixL, mtx_matrixS16_t matrixR);
 
 /**
+ * Verifica se duas matrizes sao iguais.
+ *
+ * Obs.: Matrizes de tamanho diferentes sao automaticamente consideradas
+ * diferentes.
+ *
+ * @param mtx_matrixS16_t matrix1
+ * 	Primeira matriz para comparar.
+ *
+ * @param mtx_matrixS16_t matrix2
+ * 	Segunda matriz para comparar.
+ *
+ * @param uint8_t equalLimiar
+ * 	Valor limite para considerar pixels como iguais iguais, caso a subtracao de algum
+ * 	pixel da matriz1 e o pixel correspondente da matriz2 for >= que equalLimiar
+ * 	as matrizes seram consideradas diferentes.
+ *
+ * @return \ref bool
+ * 	Retorn true se as matrizes forem iguais e false se forem diferentes.
+ *
+ */
+bool mtx_equals(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalLimiar);
+
+/**
  * Converte uma matriz com os valores S16 para uma matriz com valores em
  * floats.
  *
@@ -187,7 +235,44 @@ mtx_matrixS16_t mtx_subMatrixS16(mtx_matrixS16_t matrixL, mtx_matrixS16_t matrix
 mtx_matrixFloat_t mtx_convertS16ToFloatMatrix(mtx_matrixS16_t originalMatrix);
 
 /**
- * Imprime na tela os dados dados de uma matriz.
+ * Comprime uma matriz para um array, varrendo a matriz em Zig Zag,
+ * salvando todos os elementos nao nulos.
+ *
+ * @param mtx_matrixS16_t matrixToCompress
+ * 	Matriz a ser comprimida.
+ *
+ * @return \ref mtx_arrayS16_t
+ * 	Array com os dados nao nulos da matriz lida em Zig Zag.
+ *
+ */
+mtx_arrayS16_t mtx_zigZagCompressMatrix(mtx_matrixS16_t matrixToCompress);
+
+/**
+ * Descomprime um array para uma matriz, varrendo a matriz em Zig Zag.
+ *
+ * Como o array foi gerado com perde dados a partir de uma matriz,
+ * ele possui menos valores que a matriz, entao eh necessario passar
+ * o tamanho da matriz que deseja-se obter (nLines*nCols), onde os valores
+ * seram inseridos em ZigZag e o restante das posicoes seram
+ * preenchidas com zeros.
+ *
+ * @param mtx_arrayS16_t arrayToDecompress
+ * 	Array a ser descomprimido.
+ *
+ * @param int nLines
+ * 	Numero de linhas na matriz gerada.
+ *
+ * @param int nCols
+ * 	Numero de colunas na matriz gerada.
+ *
+ * @return \ref mtx_matrixS16_t
+ * 	Matriz resultante da descompressao,
+ *
+ */
+mtx_matrixS16_t mtx_zigZagDecompressMatrix(mtx_arrayS16_t arrayToDecompress, int nLines, int nCols);
+
+/**
+ * Imprime na tela os dados de uma matriz.
  *
  * @param \ref mtx_matrixS16_t matrixToPrint
  *	Matriz para imprimir.
@@ -195,7 +280,15 @@ mtx_matrixFloat_t mtx_convertS16ToFloatMatrix(mtx_matrixS16_t originalMatrix);
 void mtx_printMatrixS16(mtx_matrixS16_t matrixToPrint);
 
 /**
- * Imprime na tela os dados dados de uma matriz.
+ * Imprime na tela os dados de um array.
+ *
+ * @param \ref mtx_arrayS16_t arrayToPrint
+ *	Array para imprimir.
+ */
+void mtx_printArrayS16(mtx_arrayS16_t arrayToPrint);
+
+/**
+ * Imprime na tela os dados de uma matriz.
  *
  * @param \ref mtx_matrixFloat_t matrixToPrint
  *	Matriz para imprimir.

@@ -144,7 +144,7 @@ pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR);
  * 	Retorna uma nova imagem com o resultado.
  *
  */
-pgm_img_t pgm_identifyMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca);
+pgm_img_t pgm_findMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca);
 
 /**
  * Imprime na tela os dados dados de uma imagem PGM, que eh representada no programa

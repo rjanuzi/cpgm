@@ -16,6 +16,8 @@
 #define JPEG_QUALITY_MATRIX_TO_USE_Q50		2
 #define JPEG_QUALITY_MATRIX_TO_USE_Q90		3
 
+#define JPEG_PCI_HEADER_SIZE				27
+
 /**
  * Cria a matriz DCT (T-Matrix) seguindo padrao de matrizes
  * definido por \ref matrix.h
@@ -74,13 +76,27 @@ mtx_matrixFloat_t jpeg_calcMatrixD8x8(mtx_matrixFloat_t originalMatrix);
  * 	constantes \ref JPEG_QUALITY_MATRIX_TO_USE_Q10, \ref JPEG_QUALITY_MATRIX_TO_USE_Q50
  * 	ou \ref JPEG_QUALITY_MATRIX_TO_USE_Q90
  *
+ * 	@param \ref const char* outputFile
+ * 	Nome do arquivo do tipo .pci (Pseudo-Compressed PGM Img) de saida, nesse arquivo seram
+ * 	armazenados os dados compactados da imagem, e pode ser utilizado para obter a uma imagem
+ * 	apos a execucao do algoritmo DCT.
+ *
  * @return pgm_img_t
  * 	Retorna uma nova imagem apos a aplicacao do DCT.
  */
-pgm_img_t jpeg_applyDctToPgmImg(pgm_img_t originalPgmImg, uint8_t qualityMatrixToUse);
+pgm_img_t jpeg_applyDctToPgmImg(pgm_img_t originalPgmImg, uint8_t qualityMatrixToUse, const char* outputFile);
 
-//TODO
-//<return> jpeg_compactPgmData(pgm_img_t originalPgmImg);
+/**
+ * Recupera uma imagem pgm pseudo-compactada a partir de uma arquivo
+ * .pci.
+ *
+ * @param \ref const char* inputPciFileName
+ * 	Imagem onde o algoritmo deve ser aplicado.
+ *
+ * @return pgm_img_t
+ * 	Retorna uma imagem PCI em uma estrutura de dados pgm.
+ */
+pgm_img_t jpeg_recoveryPciImg(const char* inputPciFileName);
 
 mtx_matrixFloat_t jpeg_createTestMatrixOriginal8x8();
 

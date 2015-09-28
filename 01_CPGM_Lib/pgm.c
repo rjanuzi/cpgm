@@ -161,10 +161,10 @@ pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR)
 	return resultImg;
 }
 
-pgm_img_t pgm_identifyMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca)
+pgm_img_t pgm_findMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca)
 {
 	pgm_img_t resultImg;
-	mtx_matrixS16_t matrixAux, matrixAux2;
+	mtx_matrixS16_t blocoSendoAvaliado;
 	bool wallyIsInActualBlock = false;
 	int i, j, relativeI, relativeJ, maxRelativeI, maxRelativeJ;
 
@@ -174,43 +174,32 @@ pgm_img_t pgm_identifyMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_
 	maxRelativeI = pgmImg.imgMatrix.nLines-mask.nLines;
 	maxRelativeJ = pgmImg.imgMatrix.nCols-mask.nCols;
 
-	for(relativeI = 0; relativeI <= maxRelativeI; relativeI++)
+	for(relativeI = 0; relativeI <= maxRelativeI; relativeI++){
+		printf("\nRunning... %.2f%c", (((float)relativeI)/((float)maxRelativeI))*100.0,'%');
 		for(relativeJ = 0; relativeJ <= maxRelativeJ; relativeJ++)
 		{
-			matrixAux = mtx_createMatrixS16(mask.nLines, mask.nCols);
+			blocoSendoAvaliado = mtx_createMatrixS16(mask.nLines, mask.nCols);
 
 			/* Copia um bloco da imagem original para matrixAux. */
-			for(i = 0; i < matrixAux.nLines; i++)
-				for(j = 0; j < matrixAux.nCols; j++)
-					matrixAux.mtx[i][j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
+			for(i = 0; i < blocoSendoAvaliado.nLines; i++)
+				for(j = 0; j < blocoSendoAvaliado.nCols; j++)
+					blocoSendoAvaliado.mtx[i][j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
 
-			matrixAux2 = mtx_subMatrixS16(matrixAux, mask);
+			/* Verifica se o wally estah no bloco da imagem sendo analisada */
+			wallyIsInActualBlock = mtx_equals(blocoSendoAvaliado, mask, limiarDeDiferenca);
 
-			/* Verifica se o wally estah no bloco da imagem sendo analisado */
-			wallyIsInActualBlock = true;
-			for(i = 0; i < matrixAux2.nLines; i++)
-			{
-				for(j = 0; j < matrixAux2.nCols; j++)
-					if(matrixAux2.mtx[i][j] > limiarDeDiferenca) /* Sao diferentes. */
-					{
-						wallyIsInActualBlock = false;
-						break; /* Sai do primeiro for */
-					}
-				if(!wallyIsInActualBlock)
-					break; /* Sai do segundo for */
-			}
-
-			/* Desenha o wally na imagem de resultado */
+			/* Caso um wally tenha sido encontrado na posicao avaliada,
+			 * desenha o wally na imagem de resultado */
 			if(wallyIsInActualBlock)
 			{
-				for(i = 0; i < matrixAux2.nLines; i++)
-					for(j = 0; j < matrixAux2.nCols; j++)
+				for(i = 0; i < mask.nLines; i++)
+					for(j = 0; j < mask.nCols; j++)
 						resultImg.imgMatrix.mtx[relativeI+i][relativeJ+j] = mask.mtx[i][j];
 			}
 
-			mtx_freeMatrixS16(matrixAux);
-			mtx_freeMatrixS16(matrixAux2);
+			mtx_freeMatrixS16(blocoSendoAvaliado);
 		}
+	}
 
 	return resultImg;
 }
