@@ -129,7 +129,8 @@ pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR);
 
 /**
  * Calcula aplica a operacao de diff em uma imagem inteira utilizando
- * a mesma mascara.
+ * a mesma mascara, a mascara com a parte da imagem sendo avaliada são
+ * comparadas pixel a pixel.
  *
  * @param pgm_img_t pgmImg
  * 	Primeira imagem da equacao de diferenca.
@@ -145,7 +146,53 @@ pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR);
  * 	Retorna uma nova imagem com o resultado.
  *
  */
-pgm_img_t pgm_findMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca);
+pgm_img_t pgm_findMaskInImagePaP(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca);
+
+/**
+ * Calcula aplica a operacao de diff em uma imagem inteira utilizando
+ * a mesma mascara, a mascara com a parte da imagem sendo avaliada são
+ * comparadas considerando um valor médio de todos os pixels.
+ *
+ * @param pgm_img_t pgmImg
+ * 	Primeira imagem da equacao de diferenca.
+ *
+ * @param mtx_matrixS16_t mask
+ * 	Mascara que sera subtraida da imagem em blocos.
+ *
+ * @param uint8_t limiarDeDiferenca
+ * 	Define o quanto de diferenca entre cada pixel o algoritmo considera
+ * 	a igualdade. Ex.: 50, p1 - p2 > 50, então p1 == p2
+ *
+ * @return \ref pgm_img_t
+ * 	Retorna uma nova imagem com o resultado.
+ *
+ */
+pgm_img_t pgm_findMaskInImageMean(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca);
+
+/**
+ * Calcula aplica a operacao de diff em uma imagem inteira utilizando
+ * a mesma mascara, a mascara com a parte da imagem sendo avaliada são
+ * comparadas considerando uma porcentagem de pixels iguais. Os pixels
+ * sao comparados de acordo com um limiar de diferenca.
+ *
+ * @param pgm_img_t pgmImg
+ * 	Primeira imagem da equacao de diferenca.
+ *
+ * @param mtx_matrixS16_t mask
+ * 	Mascara que sera subtraida da imagem em blocos.
+ *
+ * @param int equalValorLimiar
+ *	Diferenca maxima para considerar pixels iguais.
+ *
+ * @param uint8_t equalLimiarPercentage
+ * 	Define o quanto de porcentagem de similaridade deve existir entre as imagens
+ * 	para serem consideradas iguais.
+ *
+ * @return \ref pgm_img_t
+ * 	Retorna uma nova imagem com o resultado.
+ *
+ */
+pgm_img_t pgm_findMaskInImagePercentage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t equalValorLimiar, float equalLimiarPercentage);
 
 /**
  * Imprime na tela os dados dados de uma imagem PGM, que eh representada no programa

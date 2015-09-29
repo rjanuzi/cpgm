@@ -199,7 +199,8 @@ mtx_matrixS16_t mtx_divMatrixElemFloat(mtx_matrixFloat_t matrixL, mtx_matrixFloa
 mtx_matrixS16_t mtx_subMatrixS16(mtx_matrixS16_t matrixL, mtx_matrixS16_t matrixR);
 
 /**
- * Verifica se duas matrizes sao iguais.
+ * Verifica se duas matrizes sao iguais, as matrizes sao comparadas posicao por
+ * posicao.
  *
  * Obs.: Matrizes de tamanho diferentes sao automaticamente consideradas
  * diferentes.
@@ -212,14 +213,65 @@ mtx_matrixS16_t mtx_subMatrixS16(mtx_matrixS16_t matrixL, mtx_matrixS16_t matrix
  *
  * @param uint8_t equalLimiar
  * 	Valor limite para considerar pixels como iguais iguais, caso a subtracao de algum
- * 	pixel da matriz1 e o pixel correspondente da matriz2 for >= que equalLimiar
+ * 	pixel da matriz1 e o pixel correspondente da matriz2 for <= que equalLimiar
  * 	as matrizes seram consideradas diferentes.
  *
  * @return \ref bool
  * 	Retorn true se as matrizes forem iguais e false se forem diferentes.
  *
  */
-bool mtx_equals(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalLimiar);
+bool mtx_equalsPaP(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalLimiar);
+
+/**
+ * Verifica se duas matrizes sao iguais, as matrizes sao comparadas considerando uma média
+ * dos valores nas matriz.
+ *
+ * Obs.: Matrizes de tamanho diferentes sao automaticamente consideradas
+ * diferentes.
+ *
+ * @param mtx_matrixS16_t matrix1
+ * 	Primeira matriz para comparar.
+ *
+ * @param mtx_matrixS16_t matrix2
+ * 	Segunda matriz para comparar.
+ *
+ * @param uint8_t equalLimiar
+ * 	Valor limite para considerar pixels como iguais iguais, caso a subtracao de algum
+ * 	pixel da matriz1 e o pixel correspondente da matriz2 for <= que equalLimiar
+ * 	as matrizes seram consideradas diferentes.
+ *
+ * @return \ref bool
+ * 	Retorn true se as matrizes forem iguais e false se forem diferentes.
+ *
+ */
+bool mtx_equalsMean(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalLimiar);
+
+/**
+ * Verifica se duas matrizes sao iguais, para comparar as matrizes eh gerada uma porcentagem
+ * de pixels iguais entre as duas. Os pixels sao considerados iguais se a diferenca entre eles
+ * estiver a baixo de um limiar.
+ *
+ * Obs.: Matrizes de tamanho diferentes sao automaticamente consideradas
+ * diferentes.
+ *
+ * @param mtx_matrixS16_t matrix1
+ * 	Primeira matriz para comparar.
+ *
+ * @param mtx_matrixS16_t matrix2
+ * 	Segunda matriz para comparar.
+ *
+ * @param int equalValorLimiar
+ * 	Valor do limiar para diferencia pixels.
+ *
+ * @param uint8_t equalLimiarPercentage
+ * 	Valor limite para considerar matrizes iguais, ou seja para um limiar de 25.0%, tem-se que
+ * 	duas matrizes sao iguais se elas tem pelo menos 25.0% dos pixels com o mesmo valor.
+ *
+ * @return \ref bool
+ * 	Retorn true se as matrizes forem iguais e false se forem diferentes.
+ *
+ */
+bool mtx_equalsPercentage(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalValorLimiar, float equalLimiarPercentage);
 
 /**
  * Converte uma matriz com os valores S16 para uma matriz com valores em

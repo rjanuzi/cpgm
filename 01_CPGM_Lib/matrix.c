@@ -198,21 +198,115 @@ mtx_matrixS16_t mtx_subMatrixS16(mtx_matrixS16_t matrixL, mtx_matrixS16_t matrix
 	return resultMatrix;
 }
 
-bool mtx_equals(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalLimiar)
+bool mtx_equalsPaP(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalLimiar)
 {
-	int i,j;
+	int i,j, val1, val2;
 
 	if(matrix1.nLines != matrix2.nLines || matrix1.nCols != matrix2.nCols)
 		return false;
 
 	for(i = 0; i < matrix1.nLines; i++)
 		for(j = 0; j < matrix2.nCols; j++)
-			if((matrix1.mtx[i][j] - matrix2.mtx[i][j]) > equalLimiar)
+		{
+			val1 = abs(matrix1.mtx[i][j]);
+			val2 = abs(matrix2.mtx[i][j]);
+
+			if( val1 > val2 )
 			{
-				return false;
+				if((val1 - val2) > equalLimiar)
+				{
+					return false;
+				}
 			}
+			else
+			{
+				if((val2 - val1) > equalLimiar)
+				{
+					return false;
+				}
+			}
+		}
 
 	return true;
+}
+
+bool mtx_equalsMean(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalLimiar)
+{
+	int i,j;
+	int media1 = 0, media2 = 0;
+
+	if(matrix1.nLines != matrix2.nLines || matrix1.nCols != matrix2.nCols)
+		return false;
+
+	for(i = 0; i < matrix1.nLines; i++)
+		for(j = 0; j < matrix2.nCols; j++)
+		{
+			media1 += matrix1.mtx[i][j];
+			media2 += matrix2.mtx[i][j];
+		}
+
+	media1 /= (matrix1.nLines*matrix1.nCols);
+	media2 /= (matrix1.nLines*matrix1.nCols);
+
+	media1 = abs(media1);
+	media2 = abs(media2);
+
+	if(media1 > media2)
+	{
+		if((media1 - media2) <= equalLimiar)
+		{
+			return true;
+		}
+	}
+	else
+	{
+		if((media2 - media1) <= equalLimiar)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool mtx_equalsPercentage(mtx_matrixS16_t matrix1, mtx_matrixS16_t matrix2, uint8_t equalValorLimiar, float equalLimiarPercentage)
+{
+	int i,j, val1 = 0, val2 = 0, numberOfEqualPixels = 0;
+	float percentageOfEqualsPixels = 0.0;
+
+	if(matrix1.nLines != matrix2.nLines || matrix1.nCols != matrix2.nCols)
+		return false;
+
+	for(i = 0; i < matrix1.nLines; i++)
+		for(j = 0; j < matrix2.nCols; j++)
+		{
+			val1 = abs(matrix1.mtx[i][j]);
+			val2 = abs(matrix2.mtx[i][j]);
+
+			if( val1 > val2 )
+			{
+				if((val1 - val2) <= equalValorLimiar)
+				{
+					percentageOfEqualsPixels++;
+				}
+			}
+			else
+			{
+				if((val2 - val1) <= equalValorLimiar)
+				{
+					percentageOfEqualsPixels++;
+				}
+			}
+		}
+
+	numberOfEqualPixels = percentageOfEqualsPixels;
+	percentageOfEqualsPixels /= (matrix1.nLines*matrix2.nCols);
+	percentageOfEqualsPixels *= 100;
+
+	if(percentageOfEqualsPixels >= equalLimiarPercentage)
+		return true;
+
+	return false;
 }
 
 mtx_matrixFloat_t mtx_convertS16ToFloatMatrix(mtx_matrixS16_t originalMatrix)

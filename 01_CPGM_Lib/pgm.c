@@ -201,7 +201,7 @@ pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR)
 	return resultImg;
 }
 
-pgm_img_t pgm_findMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca)
+pgm_img_t pgm_findMaskInImagePaP(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca)
 {
 	pgm_img_t resultImg;
 	mtx_matrixS16_t blocoSendoAvaliado;
@@ -226,15 +226,101 @@ pgm_img_t pgm_findMaskInImage(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t li
 					blocoSendoAvaliado.mtx[i][j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
 
 			/* Verifica se o wally estah no bloco da imagem sendo analisada */
-			wallyIsInActualBlock = mtx_equals(blocoSendoAvaliado, mask, limiarDeDiferenca);
+			wallyIsInActualBlock = mtx_equalsPaP(blocoSendoAvaliado, mask, limiarDeDiferenca);
 
 			/* Caso um wally tenha sido encontrado na posicao avaliada,
-			 * desenha o wally na imagem de resultado */
+			 * desenha o que encontrou na imagem de resultado */
 			if(wallyIsInActualBlock)
 			{
 				for(i = 0; i < mask.nLines; i++)
 					for(j = 0; j < mask.nCols; j++)
-						resultImg.imgMatrix.mtx[relativeI+i][relativeJ+j] = mask.mtx[i][j];
+						resultImg.imgMatrix.mtx[relativeI+i][relativeJ+j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
+			}
+
+			mtx_freeMatrixS16(blocoSendoAvaliado);
+		}
+	}
+
+	return resultImg;
+}
+
+pgm_img_t pgm_findMaskInImageMean(pgm_img_t pgmImg, mtx_matrixS16_t mask, uint8_t limiarDeDiferenca)
+{
+	pgm_img_t resultImg;
+	mtx_matrixS16_t blocoSendoAvaliado;
+	bool wallyIsInActualBlock = false;
+	int i, j, relativeI, relativeJ, maxRelativeI, maxRelativeJ;
+
+	resultImg = pgm_createEmptyImg(pgmImg.imgMatrix.nLines, pgmImg.imgMatrix.nCols);
+	resultImg.maxValue = pgmImg.maxValue;
+
+	maxRelativeI = pgmImg.imgMatrix.nLines-mask.nLines;
+	maxRelativeJ = pgmImg.imgMatrix.nCols-mask.nCols;
+
+	for(relativeI = 0; relativeI <= maxRelativeI; relativeI++){
+		printf("\nRunning... %.2f%c", (((float)relativeI)/((float)maxRelativeI))*100.0,'%');
+		for(relativeJ = 0; relativeJ <= maxRelativeJ; relativeJ++)
+		{
+			blocoSendoAvaliado = mtx_createMatrixS16(mask.nLines, mask.nCols);
+
+			/* Copia um bloco da imagem original para matrixAux. */
+			for(i = 0; i < blocoSendoAvaliado.nLines; i++)
+				for(j = 0; j < blocoSendoAvaliado.nCols; j++)
+					blocoSendoAvaliado.mtx[i][j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
+
+			/* Verifica se o wally estah no bloco da imagem sendo analisada */
+			wallyIsInActualBlock = mtx_equalsMean(blocoSendoAvaliado, mask, limiarDeDiferenca);
+
+			/* Caso um wally tenha sido encontrado na posicao avaliada,
+			 * desenha o que encontrou na imagem de resultado */
+			if(wallyIsInActualBlock)
+			{
+				for(i = 0; i < mask.nLines; i++)
+					for(j = 0; j < mask.nCols; j++)
+						resultImg.imgMatrix.mtx[relativeI+i][relativeJ+j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
+			}
+
+			mtx_freeMatrixS16(blocoSendoAvaliado);
+		}
+	}
+
+	return resultImg;
+}
+
+pgm_img_t pgm_findMaskInImagePercentage(pgm_img_t pgmImg, mtx_matrixS16_t mask,  uint8_t equalValorLimiar, float equalLimiarPercentage)
+{
+	pgm_img_t resultImg;
+	mtx_matrixS16_t blocoSendoAvaliado;
+	bool wallyIsInActualBlock = false;
+	int i, j, relativeI, relativeJ, maxRelativeI, maxRelativeJ;
+
+	resultImg = pgm_createEmptyImg(pgmImg.imgMatrix.nLines, pgmImg.imgMatrix.nCols);
+	resultImg.maxValue = pgmImg.maxValue;
+
+	maxRelativeI = pgmImg.imgMatrix.nLines-mask.nLines;
+	maxRelativeJ = pgmImg.imgMatrix.nCols-mask.nCols;
+
+	for(relativeI = 0; relativeI <= maxRelativeI; relativeI++){
+		printf("\nRunning... %.2f%c", (((float)relativeI)/((float)maxRelativeI))*100.0,'%');
+		for(relativeJ = 0; relativeJ <= maxRelativeJ; relativeJ++)
+		{
+			blocoSendoAvaliado = mtx_createMatrixS16(mask.nLines, mask.nCols);
+
+			/* Copia um bloco da imagem original para matrixAux. */
+			for(i = 0; i < blocoSendoAvaliado.nLines; i++)
+				for(j = 0; j < blocoSendoAvaliado.nCols; j++)
+					blocoSendoAvaliado.mtx[i][j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
+
+			/* Verifica se o wally estah no bloco da imagem sendo analisada */
+			wallyIsInActualBlock = mtx_equalsPercentage(blocoSendoAvaliado, mask, equalValorLimiar, equalLimiarPercentage);
+
+			/* Caso um wally tenha sido encontrado na posicao avaliada,
+			 * desenha o que encontrou na imagem de resultado */
+			if(wallyIsInActualBlock)
+			{
+				for(i = 0; i < mask.nLines; i++)
+					for(j = 0; j < mask.nCols; j++)
+						resultImg.imgMatrix.mtx[relativeI+i][relativeJ+j] = pgmImg.imgMatrix.mtx[relativeI+i][relativeJ+j];
 			}
 
 			mtx_freeMatrixS16(blocoSendoAvaliado);
