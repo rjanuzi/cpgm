@@ -226,4 +226,9 @@ uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze);
  */
 void pgm_saveHistogram(const char* fileName, uint8_t* histArray);
 
+/**
+ * TODO
+ */
+pgm_img_t pgm_applyMask(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApply, uint8_t threshold);
+
 #endif /* _PGM_H_ */

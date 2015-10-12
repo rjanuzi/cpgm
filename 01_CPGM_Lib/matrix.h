@@ -34,6 +34,11 @@ typedef struct {
 	float** mtx;
 } mtx_matrixFloat_t;
 
+typedef struct {
+	int lineIndex;
+	int colIndex;
+} mtx_pos;
+
 /**
  *	Instancia uma matriz com elementos de 2 Bytes (int16_t).
  *
@@ -346,5 +351,59 @@ void mtx_printArrayS16(mtx_arrayS16_t arrayToPrint);
  *	Matriz para imprimir.
  */
 void mtx_printMatrixFloat(mtx_matrixFloat_t matrixToPrint);
+
+/**
+ * Retorna um array de quatro posicoes do tipo \ref mtx_pos com as posicoes
+ * dos vizinho-4 de um pixel (ponto na matriz).
+ *
+ * Considerando o pixel de interesse P:
+ *
+ *	X  | V1 | X
+ *	V2 | P  | V3
+ *	X  | V4 | X
+ *
+ * @param mtx_pos centerPixelPosition
+ * 	Ponto P de interesse que deseja-se encontrar os vizinho-4.
+ *
+ * @param int maxLineVal
+ * 	Tamanho maximo de linhas da matriz onde o pixel esta inserido.
+ *
+ * @param int maxColVal
+ * 	Tamanho maximo de colunas da matriz onde o pixel esta inserido.
+ *
+ * @return
+ * 	Um array de 4 posicoes \ref mtx_pos com os vizinhos-4 do ponto passado
+ * 	por parametro, a ordem dos pontos sao dados da esquerda para a direita
+ * 	e de cima para baixo (array: [V1, V2, V3, V4]).
+ *
+ */
+mtx_pos* mtx_getVizinhos4(mtx_pos centerPixelPosition, int maxLineVal, int maxColVal);
+
+/**
+ * Retorna um array de quatro posicoes do tipo \ref mtx_pos com as posicoes
+ * dos vizinho-8 de um pixel (ponto na matriz).
+ *
+ * Considerando o pixel de interesse P:
+ *
+ *	V1 | V2 | V3
+ *	V4 | P  | V5
+ *	V6 | V7 | V8
+ *
+ * @param mtx_pos centerPixelPosition
+ * 	Ponto P de interesse que deseja-se encontrar os vizinho-8.
+ *
+ * @param int maxLineVal
+ * 	Tamanho maximo de linhas da matriz onde o pixel esta inserido.
+ *
+ * @param int maxColVal
+ * 	Tamanho maximo de colunas da matriz onde o pixel esta inserido.
+ *
+ * @return
+ * 	Um array de 8 posicoes \ref mtx_pos com os vizinhos-4 do ponto passado
+ * 	por parametro, a ordem dos pontos sao dados da esquerda para a direita
+ * 	e de cima para baixo (array: [V1, V2, V3, V4, V5, V6, V7, V8]).
+ *
+ */
+mtx_pos* mtx_getVizinhos8(mtx_pos centerPixelPosition, int maxLineVal, int maxColVal);
 
 #endif /* MATRIX_H_ */

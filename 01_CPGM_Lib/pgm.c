@@ -383,3 +383,52 @@ void pgm_saveHistogram(const char* fileName, uint8_t* histArray)
 
 	fclose(fileToSave);
 }
+
+pgm_img_t pgm_applyMask(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApply, uint8_t threshold)
+{
+	pgm_img_t resultantImg = pgm_createEmptyImg(imgToApplyFilter.imgMatrix.nLines, imgToApplyFilter.imgMatrix.nCols);
+	mtx_pos* vizinhos;
+	mtx_pos actualPos;
+	int i, j, k, m, n, nVizinhos = 8, newPixelValue;
+
+	for(i = 0; i < resultantImg.imgMatrix.nLines; i++)
+		for(j = 0; j < resultantImg.imgMatrix.nCols; j++)
+		{
+			actualPos.lineIndex = i;
+			actualPos.colIndex = j;
+			vizinhos = mtx_getVizinhos8(actualPos, resultantImg.imgMatrix.nLines-1, resultantImg.imgMatrix.nCols-1);
+
+			/* Primeiro calcula usando o centro da mascara. (pixel * w11) */
+			newPixelValue = (imgToApplyFilter.imgMatrix.mtx[i][j] * maskToApply.mtx[1][1]);
+
+			/* Agora calcula para o resto dos vizinhos 8 (pixel_vk * w_mn) */
+			k = 0;
+			for(m = 0; m < 3; m++)
+				for(n = 0; n < 3; n++)
+				{
+					if( m == 1 && n == 1) /* Tem que considerar o proprio pixel e nao um vizinho. */
+					{
+						newPixelValue += (imgToApplyFilter.imgMatrix.mtx[i][j] * maskToApply.mtx[m][n]);
+					}
+					else /* Calcula a mascara usando os vizinhos */
+					{
+						/* Se tenho vizinho nessa posicao do pixel usa. */
+						if(vizinhos[k].lineIndex >= 0 && vizinhos[k].colIndex >= 0)
+						{
+							newPixelValue += (imgToApplyFilter.imgMatrix.mtx[vizinhos[k].lineIndex][vizinhos[k].colIndex] * \
+									maskToApply.mtx[m][n]);
+						}
+
+						/* Tendo ou nao vizinho vai para o proximo. */
+						k++;
+					}
+				}
+
+			newPixelValue /= nVizinhos;
+			resultantImg.imgMatrix.mtx[i][j] = newPixelValue;
+
+			free(vizinhos);
+		}
+
+	return resultantImg;
+}

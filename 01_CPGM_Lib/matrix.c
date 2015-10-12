@@ -502,3 +502,187 @@ void mtx_printMatrixFloat(mtx_matrixFloat_t matrixToPrint)
 			printf(" %.4f ", matrixToPrint.mtx[i][j]);
 	}
 }
+
+mtx_pos* mtx_getVizinhos4(mtx_pos centerPixelPosition, int maxLineVal , int maxColVal)
+{
+	mtx_pos* posicoes;
+
+	if(centerPixelPosition.lineIndex < 0 || centerPixelPosition.colIndex < 0)
+	{
+		printf("\nERRO - mtx_getVizinhos4 - posicao de pixel passada com parametro invalido!");
+		return NULL;
+	}
+
+	posicoes = malloc(4*sizeof(mtx_pos));
+
+	if(posicoes == NULL)
+	{
+		printf("\nERRO - mtx_getVizinhos4 - Problema na alocacao de memoria para o array de posicoes!");
+		return NULL;
+	}
+
+	/*
+	 *	X  | V1 | X
+	 *	V2 | P  | V3
+	 *	X  | V4 | X
+	 */
+
+	/* V1 */
+	posicoes[0].lineIndex = (centerPixelPosition.lineIndex-1);
+	if(posicoes[0].lineIndex < 0)
+		posicoes[0].colIndex = -1; /* Nao existe vizinho a cima */
+	else
+		posicoes[0].colIndex = centerPixelPosition.colIndex;
+
+	/* V2 */
+	posicoes[1].colIndex = (centerPixelPosition.colIndex-1);
+	if(posicoes[1].colIndex < 0)
+		posicoes[1].lineIndex = -1; /* Nao existe vizinho a esquerda */
+	else
+		posicoes[1].lineIndex = centerPixelPosition.lineIndex;
+
+	/* V3 */
+	posicoes[2].colIndex = (centerPixelPosition.colIndex+1);
+	if(posicoes[2].colIndex > maxColVal)
+		posicoes[2].colIndex = -1;
+
+	if(posicoes[2].colIndex < 0)
+		posicoes[2].lineIndex = -1; /* Nao existe vizinho a direita */
+	else
+		posicoes[2].lineIndex = centerPixelPosition.lineIndex;
+
+	/* V4 */
+	posicoes[3].lineIndex = (centerPixelPosition.lineIndex+1);
+	if(posicoes[3].lineIndex > maxLineVal)
+		posicoes[3].lineIndex = -1;
+
+	if(posicoes[3].lineIndex < 0)
+		posicoes[3].colIndex = -1;
+	else
+		posicoes[3].colIndex = centerPixelPosition.colIndex;
+
+	return &posicoes[0];
+}
+
+mtx_pos* mtx_getVizinhos8(mtx_pos centerPixelPosition, int maxLineVal, int maxColVal)
+{
+	mtx_pos* posicoes;
+
+	if(centerPixelPosition.lineIndex < 0 || centerPixelPosition.colIndex < 0)
+	{
+		printf("\nERRO - mtx_getVizinhos4 - posicao de pixel passada com parametro invalido!");
+		return NULL;
+	}
+
+	posicoes = malloc(8*sizeof(mtx_pos));
+
+	if(posicoes == NULL)
+	{
+		printf("\nERRO - mtx_getVizinhos4 - Problema na alocacao de memoria para o array de posicoes!");
+		return NULL;
+	}
+
+	/*
+	 *	V1 | V2 | V3
+	 *	V4 | P  | V5
+	 *	V6 | V7 | V8
+	 */
+
+	/* V1 */
+	posicoes[0].lineIndex = (centerPixelPosition.lineIndex-1);
+	if(posicoes[0].lineIndex < 0)
+		posicoes[0].colIndex = -1;
+	else
+	{
+		posicoes[0].colIndex = (centerPixelPosition.colIndex-1);
+		if(posicoes[0].colIndex < 0)
+			posicoes[0].lineIndex = -1;
+	}
+
+	/* V2 */
+	posicoes[1].lineIndex = (centerPixelPosition.lineIndex-1);
+	if(posicoes[1].lineIndex < 0)
+		posicoes[1].colIndex = -1;
+	else
+		posicoes[1].colIndex = centerPixelPosition.colIndex;
+
+	/* V3 */
+	posicoes[2].colIndex = (centerPixelPosition.colIndex+1);
+	if(posicoes[2].colIndex > maxColVal)
+	{
+		posicoes[2].lineIndex = -1;
+		posicoes[2].colIndex = -1;
+	}
+	else
+	{
+		posicoes[2].lineIndex = (centerPixelPosition.lineIndex-1);
+		if(posicoes[2].lineIndex < 0)
+		{
+			posicoes[2].lineIndex = -1;
+			posicoes[2].colIndex = -1;
+		}
+	}
+
+	/* V4 */
+	posicoes[3].colIndex = (centerPixelPosition.colIndex-1);
+	if(posicoes[3].colIndex < 0)
+		posicoes[3].lineIndex = -1;
+	else
+		posicoes[3].lineIndex = centerPixelPosition.lineIndex;
+
+	/* V5 */
+	posicoes[4].colIndex = (centerPixelPosition.colIndex+1);
+	if(posicoes[4].colIndex > maxColVal)
+	{
+		posicoes[4].lineIndex = -1;
+		posicoes[4].colIndex = -1;
+	}
+	else
+		posicoes[4].lineIndex = centerPixelPosition.lineIndex;
+
+	/* V6 */
+	posicoes[5].lineIndex = (centerPixelPosition.lineIndex+1);
+	if(posicoes[5].lineIndex > maxLineVal)
+	{
+		posicoes[5].lineIndex = -1;
+		posicoes[5].colIndex = -1;
+	}
+	else
+	{
+		posicoes[5].colIndex = (centerPixelPosition.colIndex-1);
+		if(posicoes[5].colIndex < 0)
+		{
+			posicoes[5].lineIndex = -1;
+			posicoes[5].colIndex = -1;
+		}
+	}
+
+	/* V7 */
+	posicoes[6].lineIndex = (centerPixelPosition.lineIndex+1);
+	if(posicoes[6].lineIndex > maxLineVal)
+	{
+		posicoes[6].lineIndex = -1;
+		posicoes[6].colIndex = -1;
+	}
+	else
+		posicoes[6].colIndex = centerPixelPosition.colIndex;
+
+	/* V8 */
+	posicoes[7].lineIndex = (centerPixelPosition.lineIndex+1);
+	if(posicoes[7].lineIndex > maxLineVal)
+	{
+		posicoes[7].lineIndex = -1;
+		posicoes[7].colIndex = -1;
+	}
+	else
+	{
+		posicoes[7].colIndex = (centerPixelPosition.colIndex+1);
+		if(posicoes[7].colIndex > maxColVal)
+		{
+			posicoes[7].lineIndex = -1;
+			posicoes[7].colIndex = -1;
+		}
+	}
+
+	return &posicoes[0];
+}
