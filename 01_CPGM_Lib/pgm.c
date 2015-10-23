@@ -2,12 +2,14 @@
 
 pgm_img_t pgm_createImg(const char* pgmFilePath)
 {
-	int fscanfResultAux, i, j, k, nLinesTemp, nColsTemp;
+	int fscanfResultAux, i, j, nLinesTemp, nColsTemp;
+	long k;
 	char stringAux[100];
 	uint16_t intAux;
 	pgm_img_t createdPgmImg;
 	FILE* pgmFile;
 	bool pgmInASCII = false;
+	bool temComentario = false;
 
 	createdPgmImg.isOk = false; /* Apenas se torna true se tudo estiver correto ao final. */
 
@@ -16,7 +18,7 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 
 	if( pgmFile == NULL )
 	{
-		printf("\npgm_createImg - Erro na abertura da imagem: %s", pgmFilePath);
+		printf("\nERRO - pgm_createImg: Erro na abertura da imagem: %s", pgmFilePath);
 		return createdPgmImg; /* Termina o programa. */
 	}
 
@@ -46,6 +48,8 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 	/* Pula texto TODO Melhorar esse Skip do comentario. */
 	while( fscanf(pgmFile, "%s", stringAux) != EOF  )
 	{
+		if(strcmp(stringAux, "#") == 0)
+			temComentario = true;
 
 		/* O loop para (break) quando encotra uma string que pode ser convertida para um inteiro
 		 * no caso de imagens pgm convertidas usando o GIMP eh a versao do filtro. */
@@ -55,17 +59,23 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 	}
 	if( fscanfResultAux == EOF )
 	{
-		printf("\npgm_createImg - ERRO: A estrutura do arquivo esta incorreta.");
+		printf("\npgm_createImg - ERRO: A estrutura do arquivo esta incorreta. 1");
 		return createdPgmImg;
 	}
 
-	/* Recupera numero de cols */
-	if((fscanfResultAux = fscanf(pgmFile, "%d", &intAux)) != EOF && fscanfResultAux != 0 )
-		nColsTemp= intAux;
+	if(!temComentario)
+		nColsTemp = intAux; /* Se nao tiver comentario a string lida eh o numero de colunas. */
 	else
 	{
-		printf("\npgm_createImg - ERRO: A estrutura do arquivo esta incorreta.");
-		return createdPgmImg;
+		/* Se tiver comentario, precisa ler o numero de colunas agora. */
+		/* Recupera numero de cols */
+		if((fscanfResultAux = fscanf(pgmFile, "%d", &intAux)) != EOF && fscanfResultAux != 0 )
+			nColsTemp= intAux;
+		else
+		{
+			printf("\npgm_createImg - ERRO: A estrutura do arquivo esta incorreta. 2");
+			return createdPgmImg;
+		}
 	}
 
 	/* Recupera numero de linhas */
@@ -73,7 +83,7 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 		nLinesTemp = intAux;
 	else
 	{
-		printf("\npgm_createImg - ERRO: A estrutura do arquivo esta incorreta.");
+		printf("\npgm_createImg - ERRO: A estrutura do arquivo esta incorreta. 3");
 		return createdPgmImg;
 	}
 
@@ -82,7 +92,7 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 		createdPgmImg.maxValue = intAux;
 	else
 	{
-		printf("\npgm_createImg - ERRO: A estrutura do arquivo esta incorreta.");
+		printf("\npgm_createImg - ERRO: A estrutura do arquivo esta incorreta. 4");
 		return createdPgmImg;
 	}
 
@@ -111,12 +121,18 @@ pgm_img_t pgm_createImg(const char* pgmFilePath)
 		i = 0;
 		j = 0;
 		uint8_t auxData;
+		long x;
+		long size = nLinesTemp*nColsTemp;
 		/* Recupera a matriz */
 		createdPgmImg.imgMatrix = mtx_createMatrixS16(nLinesTemp, nColsTemp);
-
-		for(k = 0; k < nLinesTemp*nColsTemp; k++)
+		for(k = 0; k < size; k++)
 		{
-			fread((void*)&auxData, 1,1,pgmFile);
+			if(fread((void*)&auxData, 1, 1, pgmFile) == 0)
+			{
+				printf("ERRO - pgm_createImg: fread leu 0 bytes.");
+				break;
+			}
+
 			createdPgmImg.imgMatrix.mtx[i][j] = auxData;
 			j++;
 			if( j >= nColsTemp )
@@ -162,10 +178,11 @@ void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
 
 	if( fileToSave == NULL )
 	{
-		printf("\nErro no salvamento da imagem: %s", fileToSave);
+		printf("\nERRO - pgm_savePgmImg: fileToSave == NULL", fileToSave);
 		return; /* Termina o programa. */
 	}
 
+	//	fprintf(fileToSave, PGM_MAGIC_CODE_BIN);
 	fprintf(fileToSave, PGM_MAGIC_CODE_ASCII);
 	fprintf(fileToSave, "\n");
 	fprintf(fileToSave, "# Arquivo criado com a biblioteca cpgm Version 1.0\n");
@@ -174,9 +191,8 @@ void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
 
 	for(i = 0; i < pgmImgToSave.imgMatrix.nLines; i++)
 		for(j = 0; j < pgmImgToSave.imgMatrix.nCols; j++)
+			//			fwrite((void*)&pgmImgToSave.imgMatrix.mtx[i][j], 1, 1, fileToSave);
 			fprintf(fileToSave, "%d\n", pgmImgToSave.imgMatrix.mtx[i][j]);
-
-	printf("\npgm_savePgmImg  - Nova imagem salva com sucesso no arquivio: %s", fileName);
 
 	fclose(fileToSave);
 }
@@ -195,6 +211,30 @@ pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR)
 
 	if(resultImg.imgMatrix.mtx != NULL)
 		resultImg.isOk = true;
+	else
+		resultImg.isOk = false;
+
+	return resultImg;
+}
+
+pgm_img_t pgm_diffLim(pgm_img_t pgmL, pgm_img_t pgmR, int valorLimiar)
+{
+	pgm_img_t resultImg;
+	int i,j;
+
+	resultImg.imgMatrix = mtx_subMatrixS16(pgmL.imgMatrix, pgmR.imgMatrix);
+	resultImg.maxValue = pgmL.maxValue;
+
+	if(resultImg.imgMatrix.mtx != NULL)
+	{
+		resultImg.isOk = true;
+		for(i = 0; i < resultImg.imgMatrix.nLines; i++)
+			for(j = 0; j < resultImg.imgMatrix.nCols; j++)
+				if( resultImg.imgMatrix.mtx[i][j] > valorLimiar )
+					resultImg.imgMatrix.mtx[i][j] = 255;
+				else
+					resultImg.imgMatrix.mtx[i][j] = 0;
+	}
 	else
 		resultImg.isOk = false;
 
@@ -384,11 +424,28 @@ void pgm_saveHistogram(const char* fileName, uint8_t* histArray)
 	fclose(fileToSave);
 }
 
-pgm_img_t pgm_applyMask(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApply, uint8_t threshold)
+bool pgm_equals(pgm_img_t img1, pgm_img_t img2)
+{
+	if(img1.isOk != img2.isOk || img1.maxValue != img2.maxValue || \
+			img1.imgMatrix.nLines != img2.imgMatrix.nLines || img1.imgMatrix.nCols != img2.imgMatrix.nCols)
+		return false;
+
+	int i, j;
+
+	for(i = 0; i < img1.imgMatrix.nLines; i++)
+		for(j = 0; j < img2.imgMatrix.nCols; j++)
+			if(img1.imgMatrix.mtx[i][j] != img2.imgMatrix.mtx[i][j])
+				return false;
+
+	return true;
+}
+
+//TODO - Verificar threshold
+pgm_img_t pgm_applyMaskS16(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApply, uint8_t threshold)
 {
 	pgm_img_t resultantImg = pgm_createEmptyImg(imgToApplyFilter.imgMatrix.nLines, imgToApplyFilter.imgMatrix.nCols);
-	mtx_pos* vizinhos;
-	mtx_pos actualPos;
+	mtx_pos_t* vizinhos;
+	mtx_pos_t actualPos;
 	int i, j, k, m, n, nVizinhos = 8, newPixelValue;
 
 	for(i = 0; i < resultantImg.imgMatrix.nLines; i++)
@@ -431,4 +488,128 @@ pgm_img_t pgm_applyMask(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApply,
 		}
 
 	return resultantImg;
+}
+
+//TODO - Verificar threshold
+pgm_img_t pgm_applyMaskFloat(pgm_img_t imgToApplyFilter, mtx_matrixFloat_t maskToApply, uint8_t threshold)
+{
+	pgm_img_t resultantImg = pgm_createEmptyImg(imgToApplyFilter.imgMatrix.nLines, imgToApplyFilter.imgMatrix.nCols);
+	mtx_pos_t* vizinhos;
+	mtx_pos_t actualPos;
+	int i, j, k, m, n, nVizinhos = 8, newPixelValue;
+
+	for(i = 0; i < resultantImg.imgMatrix.nLines; i++)
+		for(j = 0; j < resultantImg.imgMatrix.nCols; j++)
+		{
+			actualPos.lineIndex = i;
+			actualPos.colIndex = j;
+			vizinhos = mtx_getVizinhos8(actualPos, resultantImg.imgMatrix.nLines-1, resultantImg.imgMatrix.nCols-1);
+
+			/* Primeiro calcula usando o centro da mascara. (pixel * w11) */
+			newPixelValue = (imgToApplyFilter.imgMatrix.mtx[i][j] * maskToApply.mtx[1][1]);
+
+			/* Agora calcula para o resto dos vizinhos 8 (pixel_vk * w_mn) */
+			k = 0;
+			for(m = 0; m < 3; m++)
+				for(n = 0; n < 3; n++)
+				{
+					if( m == 1 && n == 1) /* Tem que considerar o proprio pixel e nao um vizinho. */
+					{
+						newPixelValue += (imgToApplyFilter.imgMatrix.mtx[i][j] * maskToApply.mtx[m][n]);
+					}
+					else /* Calcula a mascara usando os vizinhos */
+					{
+						/* Se tenho vizinho nessa posicao do pixel usa. */
+						if(vizinhos[k].lineIndex >= 0 && vizinhos[k].colIndex >= 0)
+						{
+							newPixelValue += (imgToApplyFilter.imgMatrix.mtx[vizinhos[k].lineIndex][vizinhos[k].colIndex] * \
+									maskToApply.mtx[m][n]);
+						}
+
+						/* Tendo ou nao vizinho vai para o proximo. */
+						k++;
+					}
+				}
+
+			resultantImg.imgMatrix.mtx[i][j] = newPixelValue;
+
+			free(vizinhos);
+		}
+
+	return resultantImg;
+}
+
+mtx_matrixFloat_t pgm_createCoocorrenciaMtx(pgm_img_t img, pgm_coocorrOrient_t orientacao, uint8_t d)
+{
+	mtx_matrixFloat_t coocorrenciaMtx;
+	uint16_t min = 0xFFFF, max = 0;
+	uint32_t freqSum = 0;
+	int i, j, k, l;
+
+	/* Encontra valores max e min */
+	for(i = 0; i < img.imgMatrix.nLines; i++)
+		for(j = 0; j < img.imgMatrix.nCols; j++)
+		{
+			if(img.imgMatrix.mtx[i][j] < min)
+				min = img.imgMatrix.mtx[i][j];
+
+			if(img.imgMatrix.mtx[i][j] > max)
+				max = img.imgMatrix.mtx[i][j];
+		}
+
+	/* Aloca a matriz de coocorrencia. */
+	coocorrenciaMtx = mtx_createMatrixFloat(max+1, max+1);
+
+	switch(orientacao)
+	{
+	case _0_GRAUS:
+		for(i = 0; i < img.imgMatrix.nLines; i++)
+			for(j = 0; j < img.imgMatrix.nCols; j++)
+			{
+				/* Verifica os caras da direita. */
+				l = 0;
+				for(k = j+1; l < d && k < img.imgMatrix.nCols; k++ )
+				{
+					l++;
+					coocorrenciaMtx.mtx[img.imgMatrix.mtx[i][k]][img.imgMatrix.mtx[i][j]]++;
+				}
+
+				/* Verifica os caras da esquerda. */
+				l = 0;
+				for(k = j-1; l < d && k > 0; k-- )
+				{
+					l++;
+					coocorrenciaMtx.mtx[img.imgMatrix.mtx[i][k]][img.imgMatrix.mtx[i][j]]++;
+				}
+			}
+		break;
+	case _45_GRAUS:
+		printf("\n45 graus");
+		break;
+	case _90_GRAUS:
+		printf("\n90 graus");
+		break;
+	case _135_GRAUS:
+		printf("\n135 graus");
+		break;
+	default:
+		printf("\nDefault");
+		break;
+	}
+
+	/* Soma todas as frequencias obtidas. */
+	freqSum = 0;
+	for(i = 0; i < coocorrenciaMtx.nLines; i++)
+		for(j = 0; j < coocorrenciaMtx.nCols; j++)
+			freqSum++;
+
+	/* Calcula a porcentagem de aparicoes */
+	for(i = 0; i < coocorrenciaMtx.nLines; i++)
+		for(j = 0; j < coocorrenciaMtx.nCols; j++)
+			coocorrenciaMtx.mtx[i][j] /= freqSum;
+
+	mtx_printMatrixFloat(coocorrenciaMtx);
+	printf("\nSoma: %d", freqSum);
+
+	return coocorrenciaMtx;
 }

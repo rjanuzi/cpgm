@@ -13,9 +13,15 @@ mtx_matrixS16_t mtx_createMatrixS16(int nLines, int nCols)
 	if(newMatrix.mtx != NULL)
 		for(i = 0; i < nLines; i++)
 		{
-			newMatrix.mtx[i] = malloc(nCols*sizeof(int16_t*));
-			for( j = 0; j < nCols; j++)
-				newMatrix.mtx[i][j] = 0;
+			newMatrix.mtx[i] = malloc(nCols*sizeof(int16_t));
+			if(newMatrix.mtx[i] == NULL)
+			{
+				printf("\nERRO - mtx_createMatrixS16: Nao foi possivel alocar a memoria necessaria.");
+				break;
+			}
+			else
+				for( j = 0; j < nCols; j++)
+					newMatrix.mtx[i][j] = 0;
 		}
 
 	return newMatrix;
@@ -39,6 +45,24 @@ mtx_arrayS16_t mtx_createArrayS16(int size)
 	return newArray;
 }
 
+mtx_arrayFloat_t mtx_createArrayFloat(int size)
+{
+	int i;
+	mtx_arrayFloat_t newArray;
+
+	newArray.size = size;
+
+	newArray.array = malloc(size*sizeof(float));
+
+	if(newArray.array != NULL)
+		for(i = 0; i < size; i++)
+		{
+			newArray.array[i] = 0.0;
+		}
+
+	return newArray;
+}
+
 mtx_matrixFloat_t mtx_createMatrixFloat(int nLines, int nCols)
 {
 	int i,j;
@@ -52,12 +76,39 @@ mtx_matrixFloat_t mtx_createMatrixFloat(int nLines, int nCols)
 	if(newMatrix.mtx != NULL)
 		for(i = 0; i < nLines; i++)
 		{
-			newMatrix.mtx[i] = malloc(nCols*sizeof(float*));
+			newMatrix.mtx[i] = malloc(nCols*sizeof(float));
 			for( j = 0; j < nCols; j++)
 				newMatrix.mtx[i][j] = 0.0;
 		}
 
 	return newMatrix;
+}
+
+mtx_matrixFloat_t mtx_cpyMatrixFloat(mtx_matrixFloat_t matrixToCpy)
+{
+	mtx_matrixFloat_t newMatrix;
+	int i, j;
+
+	newMatrix = mtx_createMatrixFloat(matrixToCpy.nLines, matrixToCpy.nCols);
+
+	for(i = 0; i < newMatrix.nLines; i++)
+		for(j = 0; j < newMatrix.nCols; j++)
+			newMatrix.mtx[i][j] = matrixToCpy.mtx[i][j];
+
+	return newMatrix;
+}
+
+mtx_arrayFloat_t mtx_cpyArrayFloat(mtx_arrayFloat_t arrayToCpy)
+{
+	mtx_arrayFloat_t newArray;
+	int i;
+
+	newArray = mtx_createArrayFloat(arrayToCpy.size);
+
+	for(i = 0; i < newArray.size; i++)
+		newArray.array[i] = arrayToCpy.array[i];
+
+	return newArray;
 }
 
 void mtx_freeMatrixS16(mtx_matrixS16_t matrixToFree)
@@ -81,6 +132,11 @@ void mtx_freeMatrixFloat(mtx_matrixFloat_t matrixToFree)
 	for(i = 0; i < matrixToFree.nLines; i++)
 		free(matrixToFree.mtx[i]);
 	free(matrixToFree.mtx);
+}
+
+void mtx_freeArrayFloat(mtx_arrayFloat_t arrayToFree)
+{
+	free(arrayToFree.array);
 }
 
 void mtx_sumScalarS16(mtx_matrixS16_t matrixToUpdate, int scalar)
@@ -193,7 +249,10 @@ mtx_matrixS16_t mtx_subMatrixS16(mtx_matrixS16_t matrixL, mtx_matrixS16_t matrix
 	if(resultMatrix.mtx != NULL)
 		for(i = 0; i < iMax; i++)
 			for(j = 0; j < jMax; j++)
-				resultMatrix.mtx[i][j] = abs(matrixL.mtx[i][j] - matrixR.mtx[i][j]);
+				if(matrixL.mtx[i][j] >= matrixR.mtx[i][j])
+					resultMatrix.mtx[i][j] = matrixL.mtx[i][j] - matrixR.mtx[i][j];
+				else
+					resultMatrix.mtx[i][j] = matrixR.mtx[i][j] - matrixL.mtx[i][j];
 
 	return resultMatrix;
 }
@@ -490,6 +549,15 @@ void mtx_printArrayS16(mtx_arrayS16_t arrayToPrint)
 		printf("%d ", arrayToPrint.array[i]);
 }
 
+void mtx_printArrayFloat(mtx_arrayFloat_t arrayToPrint)
+{
+	int i;
+
+	printf("\nArray[%d]: ", arrayToPrint.size);
+	for(i = 0; i < arrayToPrint.size; i++)
+		printf("%.2f ", arrayToPrint.array[i]);
+}
+
 void mtx_printMatrixFloat(mtx_matrixFloat_t matrixToPrint)
 {
 	int i,j;
@@ -499,13 +567,13 @@ void mtx_printMatrixFloat(mtx_matrixFloat_t matrixToPrint)
 	{
 		printf("\n");
 		for(j = 0; j < matrixToPrint.nCols; j++)
-			printf(" %.4f ", matrixToPrint.mtx[i][j]);
+			printf(" %.2f", matrixToPrint.mtx[i][j]);
 	}
 }
 
-mtx_pos* mtx_getVizinhos4(mtx_pos centerPixelPosition, int maxLineVal , int maxColVal)
+mtx_pos_t* mtx_getVizinhos4(mtx_pos_t centerPixelPosition, int maxLineVal , int maxColVal)
 {
-	mtx_pos* posicoes;
+	mtx_pos_t* posicoes;
 
 	if(centerPixelPosition.lineIndex < 0 || centerPixelPosition.colIndex < 0)
 	{
@@ -513,7 +581,7 @@ mtx_pos* mtx_getVizinhos4(mtx_pos centerPixelPosition, int maxLineVal , int maxC
 		return NULL;
 	}
 
-	posicoes = malloc(4*sizeof(mtx_pos));
+	posicoes = malloc(4*sizeof(mtx_pos_t));
 
 	if(posicoes == NULL)
 	{
@@ -564,9 +632,9 @@ mtx_pos* mtx_getVizinhos4(mtx_pos centerPixelPosition, int maxLineVal , int maxC
 	return &posicoes[0];
 }
 
-mtx_pos* mtx_getVizinhos8(mtx_pos centerPixelPosition, int maxLineVal, int maxColVal)
+mtx_pos_t* mtx_getVizinhos8(mtx_pos_t centerPixelPosition, int maxLineVal, int maxColVal)
 {
-	mtx_pos* posicoes;
+	mtx_pos_t* posicoes;
 
 	if(centerPixelPosition.lineIndex < 0 || centerPixelPosition.colIndex < 0)
 	{
@@ -574,7 +642,7 @@ mtx_pos* mtx_getVizinhos8(mtx_pos centerPixelPosition, int maxLineVal, int maxCo
 		return NULL;
 	}
 
-	posicoes = malloc(8*sizeof(mtx_pos));
+	posicoes = malloc(8*sizeof(mtx_pos_t));
 
 	if(posicoes == NULL)
 	{
@@ -685,4 +753,56 @@ mtx_pos* mtx_getVizinhos8(mtx_pos centerPixelPosition, int maxLineVal, int maxCo
 	}
 
 	return &posicoes[0];
+}
+
+bool mtx_equalsArrayFloat(mtx_arrayFloat_t array1, mtx_arrayFloat_t array2)
+{
+	int i;
+
+	if(array1.size != array2.size)
+		return false;
+
+	for(i = 0; i < array1.size; i++)
+		if(array1.array[i] != array2.array[i])
+			return false;
+
+	return true;
+}
+
+mtx_arrayFloat_t mtx_addToBack(mtx_arrayFloat_t originalArray, mtx_arrayFloat_t valuesToAdd)
+{
+	mtx_arrayFloat_t novoArray;
+	int i, j;
+
+	novoArray = mtx_createArrayFloat(originalArray.size+valuesToAdd.size);
+
+	for(i = 0; i < originalArray.size; i++)
+		novoArray.array[i] = originalArray.array[i];
+
+	j = 0;
+	for( ; i < novoArray.size; i++)
+		novoArray.array[i] = valuesToAdd.array[j++];
+
+	return novoArray;
+}
+
+mtx_matrixFloat_t mtx_addCols(mtx_matrixFloat_t originalMatrix, int numberOfCols)
+{
+	mtx_matrixFloat_t newMatrix;
+	int i, j;
+
+	newMatrix = mtx_createMatrixFloat(originalMatrix.nLines, originalMatrix.nCols+numberOfCols);
+
+	/* Copia os valores ja existentes da matriz A */
+	for(i = 0; i < originalMatrix.nLines; i++)
+		for(j = 0; j < originalMatrix.nCols; j++)
+			newMatrix.mtx[i][j] = originalMatrix.mtx[i][j];
+
+	/* Para todas as linhas colocar os valores das novas linhas. */
+	/* Coloca 0 em todas as novas colunas */
+	for(i = 0; i < originalMatrix.nLines; i++)
+		for(j = originalMatrix.nCols; j < newMatrix.nCols; j++)
+			newMatrix.mtx[i][j] = 0;
+
+	return newMatrix;
 }

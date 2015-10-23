@@ -29,6 +29,11 @@ typedef struct {
 } mtx_arrayS16_t;
 
 typedef struct {
+	int size;
+	float* array;
+} mtx_arrayFloat_t;
+
+typedef struct {
 	int nLines;
 	int nCols;
 	float** mtx;
@@ -37,7 +42,7 @@ typedef struct {
 typedef struct {
 	int lineIndex;
 	int colIndex;
-} mtx_pos;
+} mtx_pos_t;
 
 /**
  *	Instancia uma matriz com elementos de 2 Bytes (int16_t).
@@ -68,6 +73,19 @@ mtx_matrixS16_t mtx_createMatrixS16(int nLines, int nCols);
 mtx_arrayS16_t mtx_createArrayS16(int size);
 
 /**
+ *	Instancia um array com elementos floats.
+ *
+ *	@param \ref int size
+ *		Tamanho do array.
+ *
+ *	@return mtx_arrayFloat_t
+ *		Array de tamanho size alocado.
+ *
+ *	 Obs.: O acesso eh feito normalmente matrix.array[i][j].
+ */
+mtx_arrayFloat_t mtx_createArrayFloat(int size);
+
+/**
  *	Instancia uma matriz com elementos de reais (float).
  *
  *	@param \ref int nLines
@@ -81,6 +99,29 @@ mtx_arrayS16_t mtx_createArrayS16(int size);
  *	 Obs.: O acesso eh feito matrix.mtx[i][j].
  */
 mtx_matrixFloat_t mtx_createMatrixFloat(int nLines, int nCols);
+
+
+/**
+ * Cria uma copia de uma matriz
+ *
+ * @param mtx_matrixFloat_t matrixToCpy
+ *		Matriz para ser copiada.
+ *
+ *	@return
+ *		Copia da matriz passada por parametro.
+ */
+mtx_matrixFloat_t mtx_cpyMatrixFloat(mtx_matrixFloat_t matrixToCpy);
+
+/**
+ * Cria uma copia de um array.
+ *
+ * @param mtx_arrayFloat_t arrayToCpy
+ *		Array para ser copiado.
+ *
+ *	@return
+ *		Copia do array passada por parametro.
+ */
+mtx_arrayFloat_t mtx_cpyArrayFloat(mtx_arrayFloat_t arrayToCpy);
 
 /**
  * Desaloca a memoria alocada para a matriz.
@@ -97,6 +138,14 @@ void mtx_freeMatrixS16(mtx_matrixS16_t matrixToFree);
  *	Array para desalocar.
  */
 void mtx_freeArrayS16(mtx_arrayS16_t arrayToFree);
+
+/**
+ * Desaloca a memoria alocada para o array.
+ *
+ * @param \ref mtx_arrayFloat_t arrayToFree
+ *	Array para desalocar.
+ */
+void mtx_freeArrayFloat(mtx_arrayFloat_t arrayToFree);
 
 /**
  * Desaloca a memoria alocada para a matriz.
@@ -345,6 +394,14 @@ void mtx_printMatrixS16(mtx_matrixS16_t matrixToPrint);
 void mtx_printArrayS16(mtx_arrayS16_t arrayToPrint);
 
 /**
+ * Imprime na tela os dados de um array.
+ *
+ * @param \ref mtx_arrayFloat_t arrayToPrint
+ *	Array para imprimir.
+ */
+void mtx_printArrayFloat(mtx_arrayFloat_t arrayToPrint);
+
+/**
  * Imprime na tela os dados de uma matriz.
  *
  * @param \ref mtx_matrixFloat_t matrixToPrint
@@ -377,7 +434,7 @@ void mtx_printMatrixFloat(mtx_matrixFloat_t matrixToPrint);
  * 	e de cima para baixo (array: [V1, V2, V3, V4]).
  *
  */
-mtx_pos* mtx_getVizinhos4(mtx_pos centerPixelPosition, int maxLineVal, int maxColVal);
+mtx_pos_t* mtx_getVizinhos4(mtx_pos_t centerPixelPosition, int maxLineVal, int maxColVal);
 
 /**
  * Retorna um array de quatro posicoes do tipo \ref mtx_pos com as posicoes
@@ -404,6 +461,48 @@ mtx_pos* mtx_getVizinhos4(mtx_pos centerPixelPosition, int maxLineVal, int maxCo
  * 	e de cima para baixo (array: [V1, V2, V3, V4, V5, V6, V7, V8]).
  *
  */
-mtx_pos* mtx_getVizinhos8(mtx_pos centerPixelPosition, int maxLineVal, int maxColVal);
+mtx_pos_t* mtx_getVizinhos8(mtx_pos_t centerPixelPosition, int maxLineVal, int maxColVal);
+
+/**
+ * Verifica se dois array sao iguais.
+ *
+ * @param mtx_arrayFloat_t array1
+ * 	Array 1 para comparar.
+ *
+ * @param mtx_arrayFloat_t array1
+ * 	Array 1 para comparar.
+ *
+ * 	@return
+ * 		True caso sejam iguais e false caso sejam diferentes.
+ */
+bool mtx_equalsArrayFloat(mtx_arrayFloat_t array1, mtx_arrayFloat_t array2);
+
+/**
+ * Adicionar elementos ao final de um array.
+ *
+ * @param mtx_arrayFloat_t originalArray
+ * 	Array original.
+ *
+ * @param mtx_arrayFloat_t valueToAdd
+ * 	Array com os valores para adicionar ao final do array original.
+ *
+ * @return
+ * 	Novo array com os valores originais concatenados com os novos valores.
+ */
+mtx_arrayFloat_t mtx_addToBack(mtx_arrayFloat_t originalArray, mtx_arrayFloat_t valueToAdd);
+
+/**
+ * Adicionar novas colunas ao final da matriz.
+ *
+ * @param mtx_matrixFloat_t originalMatrix
+ * 	Matriz original.
+ *
+ * @param int numberOfCols
+ * 	Numero de novas colunas para adicionar
+ *
+ * @return mtx_matrixFloat_t
+ *	Nova matriz com as colunas adicionadas ao final.
+ */
+mtx_matrixFloat_t mtx_addCols(mtx_matrixFloat_t originalMatrix, int numberOfCols);
 
 #endif /* MATRIX_H_ */

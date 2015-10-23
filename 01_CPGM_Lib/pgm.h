@@ -32,6 +32,13 @@ typedef struct {
 	mtx_matrixS16_t imgMatrix;	/* Ponteiro para a matriz da imagem. */
 } pgm_img_t;
 
+typedef enum pgm_coocorrOrient_en {
+	_0_GRAUS,
+	_45_GRAUS,
+	_90_GRAUS,
+	_135_GRAUS
+}pgm_coocorrOrient_t;
+
 /**
  * Cria uma imagem pgm do tipo \ref pgm_img_t.
  * 
@@ -126,6 +133,30 @@ void pgm_sumScalar(pgm_img_t pgmInputImg, int scalarToSum);
  *
  */
 pgm_img_t pgm_diff(pgm_img_t pgmL, pgm_img_t pgmR);
+
+/**
+ * Calcula a diferenca de duas imagens pgmL - pgmR, com limiar, ou seja,
+ * caso a diferenca seja maior que limiar joga pra 255 se nao joga pra 0.
+ *
+ * Obs.: A diferenca pode ser feita com imagens de tamanhos diferentes,
+ * porem as subtracoes seram realizadas apenas em pixels (i,j) onde i,j
+ * estao definidos em ambas imagens e a imagem resultante terah tamanho
+ * min(iL, iR) x min(jL, jR).
+ *
+ * @param pgm_img_t pgmL
+ * 	Primeira imagem da equacao de diferenca.
+ *
+ * @param pgm_img_t pgmR
+ * 	Segunda imagem da equacao de diferenca.
+ *
+ * @param int valorLimiar
+ *  Valor limiar para dicisao do valor do pixel.
+ *
+ * @return \ref pgm_img_t
+ * 	Retorna uma nova imagem com o resultado.
+ *
+ */
+pgm_img_t pgm_diffLim(pgm_img_t pgmL, pgm_img_t pgmR, int valorLimiar);
 
 /**
  * Calcula aplica a operacao de diff em uma imagem inteira utilizando
@@ -227,8 +258,32 @@ uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze);
 void pgm_saveHistogram(const char* fileName, uint8_t* histArray);
 
 /**
+ * Compara duas imagens se sao exatamente iguais.
+ *
+ * @param \ref pgm_img_t img1
+ * 		Imagem 1 para comparar;
+ *
+ * @param \ref pgm_img_t img2
+ * 		Imagem 2 para comparar;
+ *
+ * @return \ref bool
+ * 		\ref true se sao exatamente iguais e \ref false se algo eh diferente.
+ */
+bool pgm_equals(pgm_img_t img1, pgm_img_t img2);
+
+/**
  * TODO
  */
-pgm_img_t pgm_applyMask(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApply, uint8_t threshold);
+pgm_img_t pgm_applyMaskS16(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApply, uint8_t threshold);
+
+/**
+ * TODO
+ */
+pgm_img_t pgm_applyMaskFloat(pgm_img_t imgToApplyFilter, mtx_matrixFloat_t maskToApply, uint8_t threshold);
+
+/**
+ * TODO
+ */
+mtx_matrixFloat_t pgm_createCoocorrenciaMtx(pgm_img_t img, pgm_coocorrOrient_t orientacao, uint8_t d);
 
 #endif /* _PGM_H_ */

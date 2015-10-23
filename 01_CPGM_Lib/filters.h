@@ -23,4 +23,17 @@
  */
 mtx_matrixS16_t flt_getLaplacianoMask();
 
+/**
+ * Retorna uma matriz 3x3 com a mascara de medias:
+ *
+ * | 1/9 | 1/9 | 1/9 |
+ * | 1/9 | 1/9 | 1/9 |
+ * | 1/9 | 1/9 | 1/9 |
+ *
+ *	@return \ref mtx_matrixFloat_t
+ *		Retorna a matriz da mascara media.
+ *
+ */
+mtx_matrixFloat_t flt_getMeanMask();
+
 #endif /* FILTERS_H_ */

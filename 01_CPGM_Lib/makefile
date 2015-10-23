@@ -1,5 +1,6 @@
 all:
-	gcc -o main main.c pgm.c jpeg.c matrix.c filters.c -I.
+	gcc -c *.c -I.
+	gcc -o main *.o
 
 clean:
-	rm main.exe
+	rm *.o main.exe
