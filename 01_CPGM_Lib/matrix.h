@@ -113,6 +113,17 @@ mtx_matrixFloat_t mtx_createMatrixFloat(int nLines, int nCols);
 mtx_matrixFloat_t mtx_cpyMatrixFloat(mtx_matrixFloat_t matrixToCpy);
 
 /**
+ * Cria uma copia de uma matriz
+ *
+ * @param mtx_matrixS16_t matrixToCpy
+ *		Matriz para ser copiada.
+ *
+ *	@return
+ *		Copia da matriz passada por parametro.
+ */
+mtx_matrixS16_t mtx_cpyMatrixS16(mtx_matrixS16_t matrixToCpy);
+
+/**
  * Cria uma copia de um array.
  *
  * @param mtx_arrayFloat_t arrayToCpy
@@ -122,6 +133,17 @@ mtx_matrixFloat_t mtx_cpyMatrixFloat(mtx_matrixFloat_t matrixToCpy);
  *		Copia do array passada por parametro.
  */
 mtx_arrayFloat_t mtx_cpyArrayFloat(mtx_arrayFloat_t arrayToCpy);
+
+/**
+ * Cria uma copia de um array.
+ *
+ * @param mtx_array16_t arrayToCpy
+ *		Array para ser copiado.
+ *
+ *	@return
+ *		Copia do array passada por parametro.
+ */
+mtx_arrayS16_t mtx_cpyArrayS16(mtx_arrayS16_t arrayToCpy);
 
 /**
  * Desaloca a memoria alocada para a matriz.

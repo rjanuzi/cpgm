@@ -44,6 +44,7 @@ bool tstPgm_testeCreateImg1();
 bool tstPgm_testeSaveImg1();
 bool tstPgm_testeFramesVideo();
 bool tstPgm_testeMediaMask();
+bool tstPgm_testeMediaMask2();
 bool tstPgm_testeCreateCoocorrenciaMtx();
 
 #endif /* TESTES_PGM_H_ */

@@ -4,6 +4,7 @@
 #include <filters.h>
 #include <ffmpeg.h>
 #include <videoBuffer.h>
+#include <amazon.h>
 
 #include <testes_matrix.h>
 
@@ -12,16 +13,16 @@ int main(int argc, char** argv)
 	/* Em C o primeiro parametro argv[0] eh sempre o nome do proprio
 	 * programa. */
 	/*  TODO - Habilitar para utilizacao de chamada por parametro */
-	//	char* paramFileName = argv[1];
+	char* paramFileName = argv[1];
+
+	if( argc != 2 )
+	{
+		printf("ERRO: Chamada incorreta do programa!\n\tUso correto: %s <originalFileName>\n", argv[0]);
+		return -1;
+	}
+
+	//	pgm_img_t pgmImage1, pgmImage2, pgmImageResult;
 	//
-	//	if( argc != 2 )
-	//	{
-	//		printf("ERRO: Chamada incorreta do programa!\n\tUso correto: %s <originalFileName>\n", argv[0]);
-	//		return -1;
-	//	}
-
-	pgm_img_t pgmImage1, pgmImage2, pgmImageResult;
-
 	/* Testando soma por escalar. */
 	/*======================================================================*/
 	//		pgmImage1 = pgm_createImg(LENA_FILE_NAME);
@@ -144,7 +145,41 @@ int main(int argc, char** argv)
 	//	printf("\nResult: %d", tstPgm_testeCreateImg1());
 	//	printf("\nResult: %d", tstPgm_testeSaveImg1());
 	//	printf("\nResult: %d", tstPgm_testeFramesVideo());
-	printf("\nResult: %d", tstPgm_testeMediaMask());
+	// 	printf("\nResult: %d", tstPgm_testeMediaMask());
+	//	printf("\nResult: %d", tstPgm_testeMediaMask2());
+
+	/*======================================================================*/
+
+	/* Trabalho final (Primeira tentativa, utilizando médias e max com limiar) */
+	/*======================================================================*/
+//	pgm_img_t preProcessedImg, resultImg;
+//
+//	preProcessedImg = amz_preProcessImg(paramFileName, 4);
+////	preProcessedImg = pgm_createImg(paramFileName);
+//	resultImg = amz_blackForestRegions(preProcessedImg, 10);
+//
+//	pgm_destroyPgm(preProcessedImg);
+//	pgm_savePgmImg(resultImg, "C:\\Users\\Rafael\\Desktop\\result.pgm");
+//
+//	system("start /b C:\\Users\\Rafael\\Desktop\\result.pgm");
+
+	/*======================================================================*/
+
+	/* Trabalho final (Sgunda tentativa, Entropia em subimagens.) */
+	/*======================================================================*/
+	pgm_img_t preProcessedImg, resultImg;
+	uint32_t* histo;
+
+	preProcessedImg = pgm_createImg(paramFileName);
+	histo = pgm_createHistogram(preProcessedImg);
+	pgm_saveHistogram("testeHisto", histo);
+//	resultImg = amz_blackForestRegions2(preProcessedImg, 20, 200);
+
+//	pgm_destroyPgm(preProcessedImg);
+//	pgm_savePgmImg(resultImg, "C:\\Users\\Rafael\\Desktop\\result.pgm");
+//	pgm_destroyPgm(resultImg);
+
+	system("start /b C:\\Users\\Rafael\\Desktop\\result.pgm");
 
 	/*======================================================================*/
 

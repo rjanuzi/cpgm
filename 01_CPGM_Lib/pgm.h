@@ -242,11 +242,11 @@ void pgm_printPgmImgStructure(pgm_img_t dataToPrint);
  * @param \ref pgm_img_t imgToAnalyze
  *	Estrutura de da imagem a ser analizada.
  *
- * @return uint8_t*
+ * @return uint32_t*
  * 	Retorna um array do tipo \ref uint8_t com \ref HISTOGRAM_ARRAY_SIZE, onde cada posicao
  * 	tem o numero de vezes que um pixel com o valor do indice existe na imagem.
  */
-uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze);
+uint32_t* pgm_createHistogram(pgm_img_t imgToAnalyze);
 
 /**
  * Salva um array com os dados do historgrama que foi gerado com a funcao
@@ -255,7 +255,7 @@ uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze);
  * @param \ref pgm_img_t imgToAnalyze
  *	Estrutura de da imagem a ser analizada.
  */
-void pgm_saveHistogram(const char* fileName, uint8_t* histArray);
+void pgm_saveHistogram(const char* fileName, uint32_t* histArray);
 
 /**
  * Compara duas imagens se sao exatamente iguais.
@@ -279,11 +279,21 @@ pgm_img_t pgm_applyMaskS16(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApp
 /**
  * TODO
  */
-pgm_img_t pgm_applyMaskFloat(pgm_img_t imgToApplyFilter, mtx_matrixFloat_t maskToApply, uint8_t threshold);
+pgm_img_t pgm_applyMaskFloat(pgm_img_t imgToApplyFilter, mtx_matrixFloat_t maskToApply);
+
+/**
+ * TODO
+ */
+pgm_img_t pgm_applyMaxMask(pgm_img_t imgToApplyFilter);
 
 /**
  * TODO
  */
 mtx_matrixFloat_t pgm_createCoocorrenciaMtx(pgm_img_t img, pgm_coocorrOrient_t orientacao, uint8_t d);
+
+/**
+ * TODO
+ */
+pgm_img_t pgm_cpyImg(pgm_img_t imgToCpy);
 
 #endif /* _PGM_H_ */

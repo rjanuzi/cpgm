@@ -98,12 +98,39 @@ mtx_matrixFloat_t mtx_cpyMatrixFloat(mtx_matrixFloat_t matrixToCpy)
 	return newMatrix;
 }
 
+mtx_matrixS16_t mtx_cpyMatrixS16(mtx_matrixS16_t matrixToCpy)
+{
+	mtx_matrixS16_t newMatrix;
+	int i, j;
+
+	newMatrix = mtx_createMatrixS16(matrixToCpy.nLines, matrixToCpy.nCols);
+
+	for(i = 0; i < newMatrix.nLines; i++)
+		for(j = 0; j < newMatrix.nCols; j++)
+			newMatrix.mtx[i][j] = matrixToCpy.mtx[i][j];
+
+	return newMatrix;
+}
+
 mtx_arrayFloat_t mtx_cpyArrayFloat(mtx_arrayFloat_t arrayToCpy)
 {
 	mtx_arrayFloat_t newArray;
 	int i;
 
 	newArray = mtx_createArrayFloat(arrayToCpy.size);
+
+	for(i = 0; i < newArray.size; i++)
+		newArray.array[i] = arrayToCpy.array[i];
+
+	return newArray;
+}
+
+mtx_arrayS16_t mtx_cpyArrayS16(mtx_arrayS16_t arrayToCpy)
+{
+	mtx_arrayS16_t newArray;
+	int i;
+
+	newArray = mtx_createArrayS16(arrayToCpy.size);
 
 	for(i = 0; i < newArray.size; i++)
 		newArray.array[i] = arrayToCpy.array[i];

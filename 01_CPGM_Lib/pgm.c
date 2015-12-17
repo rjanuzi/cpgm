@@ -174,7 +174,7 @@ void pgm_destroyPgm(pgm_img_t pgmImgToDestroy)
 void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
 {
 	FILE* fileToSave = fopen(fileName, "w");
-	int i,j;
+	int i, j;
 
 	if( fileToSave == NULL )
 	{
@@ -190,9 +190,13 @@ void pgm_savePgmImg(pgm_img_t pgmImgToSave, const char* fileName)
 	fprintf(fileToSave, "%d\n", pgmImgToSave.maxValue);
 
 	for(i = 0; i < pgmImgToSave.imgMatrix.nLines; i++)
+	{
 		for(j = 0; j < pgmImgToSave.imgMatrix.nCols; j++)
 			//			fwrite((void*)&pgmImgToSave.imgMatrix.mtx[i][j], 1, 1, fileToSave);
 			fprintf(fileToSave, "%d\n", pgmImgToSave.imgMatrix.mtx[i][j]);
+
+//		printf("\nSalvando img... %.2f%c", (((float)i) / ((float)pgmImgToSave.imgMatrix.nLines))*100, '%' );
+	}
 
 	fclose(fileToSave);
 }
@@ -383,10 +387,10 @@ void pgm_printPgmImgStructure(pgm_img_t dataToPrint)
 	mtx_printMatrixS16(dataToPrint.imgMatrix);
 }
 
-uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze)
+uint32_t* pgm_createHistogram(pgm_img_t imgToAnalyze)
 {
 	int i,j;
-	uint8_t* histArray = malloc(PGM_PIXEL_MAX_VALUE);
+	uint32_t* histArray = malloc(PGM_PIXEL_MAX_VALUE*4);
 
 	if(!imgToAnalyze.isOk)
 	{
@@ -405,7 +409,7 @@ uint8_t* pgm_createHistogram(pgm_img_t imgToAnalyze)
 	return &histArray[0];
 }
 
-void pgm_saveHistogram(const char* fileName, uint8_t* histArray)
+void pgm_saveHistogram(const char* fileName, uint32_t* histArray)
 {
 	FILE* fileToSave = fopen(fileName, "w");
 	int i;
@@ -417,7 +421,7 @@ void pgm_saveHistogram(const char* fileName, uint8_t* histArray)
 	}
 
 	for(i = 0; i < PGM_PIXEL_MAX_VALUE; i++)
-		fprintf(fileToSave, "%d\n", histArray[i]);
+		fprintf(fileToSave, "%lu\n", histArray[i]);
 
 	printf("\npgm_saveHistogram  - Histograma salvo com sucesso no arquivo: %s", fileName);
 
@@ -490,8 +494,7 @@ pgm_img_t pgm_applyMaskS16(pgm_img_t imgToApplyFilter, mtx_matrixS16_t maskToApp
 	return resultantImg;
 }
 
-//TODO - Verificar threshold
-pgm_img_t pgm_applyMaskFloat(pgm_img_t imgToApplyFilter, mtx_matrixFloat_t maskToApply, uint8_t threshold)
+pgm_img_t pgm_applyMaskFloat(pgm_img_t imgToApplyFilter, mtx_matrixFloat_t maskToApply)
 {
 	pgm_img_t resultantImg = pgm_createEmptyImg(imgToApplyFilter.imgMatrix.nLines, imgToApplyFilter.imgMatrix.nCols);
 	mtx_pos_t* vizinhos;
@@ -499,6 +502,9 @@ pgm_img_t pgm_applyMaskFloat(pgm_img_t imgToApplyFilter, mtx_matrixFloat_t maskT
 	int i, j, k, m, n, nVizinhos = 8, newPixelValue;
 
 	for(i = 0; i < resultantImg.imgMatrix.nLines; i++)
+	{
+		printf("\nAplicando mascara... %.2f%c", ( ((float)i)/ ((float)resultantImg.imgMatrix.nLines)) * 100.0, '%');
+
 		for(j = 0; j < resultantImg.imgMatrix.nCols; j++)
 		{
 			actualPos.lineIndex = i;
@@ -535,6 +541,40 @@ pgm_img_t pgm_applyMaskFloat(pgm_img_t imgToApplyFilter, mtx_matrixFloat_t maskT
 
 			free(vizinhos);
 		}
+	}
+
+	return resultantImg;
+}
+
+pgm_img_t pgm_applyMaxMask(pgm_img_t imgToApplyFilter)
+{
+	pgm_img_t resultantImg = pgm_createEmptyImg(imgToApplyFilter.imgMatrix.nLines, imgToApplyFilter.imgMatrix.nCols);
+	mtx_pos_t* vizinhos;
+	mtx_pos_t actualPos;
+	int i, j, k,  nVizinhos = 8;
+	uint16_t maxValue = 0;
+
+	for(i = 0; i < resultantImg.imgMatrix.nLines; i++)
+	{
+		printf("\nAplicando moda mask... %.2f%c", ( ((float)i)/ ((float)resultantImg.imgMatrix.nLines)) * 100.0, '%');
+
+		for(j = 0; j < resultantImg.imgMatrix.nCols; j++)
+		{
+			actualPos.lineIndex = i;
+			actualPos.colIndex = j;
+			vizinhos = mtx_getVizinhos8(actualPos, resultantImg.imgMatrix.nLines-1, resultantImg.imgMatrix.nCols-1);
+
+			maxValue = imgToApplyFilter.imgMatrix.mtx[i][j];
+
+			for(k = 0; k < nVizinhos; k++)
+				if(maxValue < imgToApplyFilter.imgMatrix.mtx[vizinhos[k].lineIndex][vizinhos[k].colIndex])
+					maxValue = imgToApplyFilter.imgMatrix.mtx[vizinhos[k].lineIndex][vizinhos[k].colIndex];
+
+			resultantImg.imgMatrix.mtx[i][j] = maxValue;
+
+			free(vizinhos);
+		}
+	}
 
 	return resultantImg;
 }
@@ -612,4 +652,15 @@ mtx_matrixFloat_t pgm_createCoocorrenciaMtx(pgm_img_t img, pgm_coocorrOrient_t o
 	printf("\nSoma: %d", freqSum);
 
 	return coocorrenciaMtx;
+}
+
+pgm_img_t pgm_cpyImg(pgm_img_t imgToCpy)
+{
+	pgm_img_t cpy;
+
+	cpy.isOk = imgToCpy.isOk;
+	cpy.maxValue = imgToCpy.maxValue;
+	cpy.imgMatrix = mtx_cpyMatrixS16(imgToCpy.imgMatrix);
+
+	return cpy;
 }

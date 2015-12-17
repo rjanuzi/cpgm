@@ -155,7 +155,7 @@ bool tstPgm_testeMediaMask()
 	pgmImage1 = pgm_createImg(LENA_GRANDE_FILE_NAME);
 	mask = flt_getMeanMask();
 
-	pgmImageResult = pgm_applyMaskFloat(pgmImage1, mask, 0);
+	pgmImageResult = pgm_applyMaskFloat(pgmImage1, mask);
 
 	pgm_savePgmImg(pgmImageResult, "imgs\\testsResults\\lenaMedia.pgm");
 
@@ -172,6 +172,23 @@ bool tstPgm_testeMediaMask()
 	pgm_destroyPgm(pgmImageResult);
 	pgm_destroyPgm(pgmImage1);
 	pgm_destroyPgm(pgmImage2);
+
+	return true;
+}
+
+bool tstPgm_testeMediaMask2()
+{
+	pgm_img_t pgmImage1, pgmImage2, pgmImageResult;
+	mtx_matrixFloat_t mask;
+
+	printf("\nCarregando imagem...");
+	pgmImage1 = pgm_createImg("C:\\imgs\\mapa1_ascii.pgm");
+	mask = flt_getMeanMask();
+
+	pgmImageResult = pgm_applyMaskFloat(pgmImage1, mask);
+
+	printf("\nSalvando resultado...");
+	pgm_savePgmImg(pgmImageResult, "C:\\imgs\\mapa1_ascii_result.pgm");
 
 	return true;
 }
